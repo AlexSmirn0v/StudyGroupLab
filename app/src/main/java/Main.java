@@ -1,8 +1,13 @@
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -10,12 +15,16 @@ import java.util.HashSet;
 import java.util.Scanner;
 
 import commands.*;
+import model.GroupBuilder;
 import model.StudyGroup;
 
 public class Main {
-    static HashSet<StudyGroup> groupSet = new HashSet<>();
+    static final String ENV_VAR = "GROUPS_FILE";
+    static final String CSV_DELIMITER = ";";
+
     static HashMap<String, Command> commandsMap = new HashMap<>();
     static boolean keepRunning = true;
+    static boolean insideFile = false;
     static Deque<String> history = new ArrayDeque<>() {
         private final int maxSize = 5;
 
@@ -27,7 +36,45 @@ public class Main {
         }
     };
 
+    private static HashSet<StudyGroup> loadCollection() {
+        HashSet<StudyGroup> collection = new HashSet<>();
+        String filename = System.getenv(ENV_VAR);
+
+        try (Scanner fileScanner = new Scanner(new BufferedInputStream(new FileInputStream(filename)))) {
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine().trim();
+                if (!line.isEmpty()) {
+                    try {
+                        StudyGroup group = new GroupBuilder().fromCSVString(line, CSV_DELIMITER).build();
+                        collection.add(group);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Ошибка при загрузке строки: " + e.getMessage());
+                    }
+                }
+            }
+        } catch (FileNotFoundException | NullPointerException e) {
+            System.out.println("Файл не найден или не может быть открыт: " + filename);
+        }
+        return collection;
+    }
+
+    private static void saveCollection(HashSet<StudyGroup> collection, String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, StandardCharsets.UTF_8))) {
+            for (StudyGroup group : collection) {
+                writer.write(group.toCSVString(CSV_DELIMITER));
+                writer.newLine();
+            }
+            writer.flush();
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл не найден или не может быть открыт для записи: " + filename);
+        } catch (IOException e) {
+            System.out.println("Ошибка при сохранении коллекции");
+        }
+    }
+
     public static void main(String[] args) {
+        HashSet<StudyGroup> groupSet = loadCollection();
+
         Charset consoleCharset = (System.console() != null)
                 ? System.console().charset()
                 : StandardCharsets.UTF_8;
@@ -49,12 +96,18 @@ public class Main {
                 System.out.println("Команда не распознана. Введите 'help' для получения списка доступных команд.");
                 continue;
             }
-            if (parts.length > 1)
-                command.setArgument(parts[1]);
+            String argument = (parts.length > 1) ? parts[1].trim() : "";
+            command.setArgument(argument);
             switch (command.name) {
                 case "exit":
-                    System.out.println("Завершение программы без сохранения");
-                    keepRunning = false;
+                    if (insideFile) {
+                        sc = new Scanner(System.in, consoleCharset);
+                        insideFile = false;
+                        System.out.println("Завершение выполнения скрипта. Возвращение к консольному режиму.");
+                    } else {
+                        keepRunning = false;
+                        System.out.println("Завершение программы без сохранения");
+                    }
                     break;
                 case "history":
                     System.out.print("Последние " + history.size() + " команд");
@@ -74,12 +127,14 @@ public class Main {
                     break;
                 case "execute_script":
                     try {
-                        sc = new Scanner(new BufferedInputStream(new FileInputStream(parts[1])));
+                        sc = new Scanner(new BufferedInputStream(new FileInputStream(argument)));
+                        insideFile = true;
                     } catch (FileNotFoundException e) {
-                        System.out.println("Файл не найден или не может быть открыт: " + parts[1]);
+                        System.out.println("Файл не найден или не может быть открыт: " + argument);
                     }
                     break;
                 case "save":
+                    saveCollection(groupSet, argument);
                     break;
                 default:
                     command.execute(groupSet);
@@ -107,7 +162,6 @@ public class Main {
                 new MaxSemCommand(sc),
                 new FilterCommand(sc),
                 new AscendCommand(sc)
-
         };
         for (Command comm : comms)
             commHashMap.put(comm.name, comm);

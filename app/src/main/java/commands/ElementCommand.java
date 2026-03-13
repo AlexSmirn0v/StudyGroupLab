@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
+import model.GroupBuilder;
+import model.GroupParams;
 import model.StudyGroup;
 
 public abstract class ElementCommand extends Command {
@@ -24,6 +26,20 @@ public abstract class ElementCommand extends Command {
                 System.out.println(errorMessage);
             }
         }
+    }
+
+    protected StudyGroup askGroup() {
+        GroupBuilder builder = new GroupBuilder();
+        askUntilValid(makeDesc(GroupParams.NAME.getInputAsks()), builder::setName);
+        askUntilValid(makeDesc(GroupParams.COORDS.getInputAsks()), builder::setCoords);
+        askUntilValid(makeDesc(GroupParams.STUDENTS_COUNT.getInputAsks()), builder::setStudentsCount);
+        askUntilValid(makeDesc(GroupParams.TRANSFERRED_STUDENTS.getInputAsks()), builder::setTransferredStudents);
+        askUntilValid(makeDesc(GroupParams.AVERAGE_MARK.getInputAsks()), builder::setAverageMark);
+        askUntilValid(makeDesc(GroupParams.SEMESTER_ENUM.getInputAsks()), builder::setSemesterEnum);
+        askUntilValid(makeDesc(GroupParams.GROUP_ADMIN.getInputAsks()), builder::setGroupAdmin);
+
+        StudyGroup group = builder.build();
+        return group;
     }
 
     protected List<String> makeDesc(String[] descriptions) {

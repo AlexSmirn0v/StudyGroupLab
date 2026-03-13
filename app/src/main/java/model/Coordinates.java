@@ -12,6 +12,14 @@ public class Coordinates {
         this.y = y;
     }
 
+    public Long getX() {
+        return x;
+    }
+
+    public long getY() {
+        return y;
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";

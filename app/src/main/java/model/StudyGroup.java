@@ -32,11 +32,6 @@ public class StudyGroup implements Comparable<StudyGroup> {
         SETTERS.put(GroupParams.GROUP_ADMIN, StudyGroup::setPerson);
     }
 
-    StudyGroup() {
-        this.id = Integer.toUnsignedLong(Math.abs(UUID.randomUUID().toString().hashCode()));
-        this.creationDate = java.time.LocalDateTime.now();
-    }
-
     @Override
     public int compareTo(StudyGroup other) {
         if (this.semesterEnum == null && other.semesterEnum == null) {
@@ -60,6 +55,20 @@ public class StudyGroup implements Comparable<StudyGroup> {
         }
 
         return this.transferredStudents - other.transferredStudents;
+    }
+
+    void setID(Long id) throws IllegalArgumentException {
+        if (id == null)
+            throw new IllegalArgumentException("Пустая строка");
+        if (id <= 0)
+            throw new IllegalArgumentException("Значение поля должно быть больше 0");
+        this.id = id;
+    }
+
+    void setCreationDate(java.time.LocalDateTime creationDate) throws IllegalArgumentException {
+        if (creationDate == null)
+            throw new IllegalArgumentException("Пустая строка");
+        this.creationDate = creationDate;
     }
 
     void setName(String newName) throws IllegalArgumentException {
@@ -163,6 +172,35 @@ public class StudyGroup implements Comparable<StudyGroup> {
             throw new IllegalArgumentException("Неверный формат числа");
         }
         this.groupAdmin = new Person(name, height, passportID, hairColor);
+    }
+
+    public String toCSVString(String delimiter) {
+        String res = "";
+        res += id + delimiter;
+        res += creationDate.toString() + delimiter;
+        res += name + delimiter;
+        if (coordinates != null)
+            res += coordinates.getX() + delimiter + coordinates.getY() + delimiter;
+        else
+            res += delimiter + delimiter;
+        if (studentsCount != null)
+            res += studentsCount + delimiter;
+        else
+            res += delimiter;
+        res += transferredStudents + delimiter;
+        res += averageMark + delimiter;
+        if (semesterEnum != null)
+            res += semesterEnum.getName() + delimiter;
+        else
+            res += delimiter;
+        if (groupAdmin != null) {
+            res += groupAdmin.getName() + delimiter;
+            res += groupAdmin.getHeight() + delimiter;
+            res += groupAdmin.getPassportID() + delimiter;
+            if (groupAdmin.getHairColor() != null)
+                res += groupAdmin.getHairColor().getName();
+        }
+        return res;
     }
 
     @Override

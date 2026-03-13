@@ -15,16 +15,7 @@ public class AddMinCommand extends ElementCommand {
 
     @Override
     public void execute(HashSet<StudyGroup> collection) {
-        GroupBuilder builder = new GroupBuilder();
-        askUntilValid(makeDesc(GroupParams.NAME.getInputAsks()), builder::setName);
-        askUntilValid(makeDesc(GroupParams.COORDS.getInputAsks()), builder::setCoords);
-        askUntilValid(makeDesc(GroupParams.STUDENTS_COUNT.getInputAsks()), builder::setStudentsCount);
-        askUntilValid(makeDesc(GroupParams.TRANSFERRED_STUDENTS.getInputAsks()), builder::setTransferredStudents);
-        askUntilValid(makeDesc(GroupParams.AVERAGE_MARK.getInputAsks()), builder::setAverageMark);
-        askUntilValid(makeDesc(GroupParams.SEMESTER_ENUM.getInputAsks()), builder::setSemesterEnum);
-        askUntilValid(makeDesc(GroupParams.GROUP_ADMIN.getInputAsks()), builder::setGroupAdmin);
-
-        StudyGroup group = builder.build();
+        StudyGroup group = askGroup();
         boolean shouldAdd = true;
         for (StudyGroup existingGroup : collection) {
             if (group.compareTo(existingGroup) >= 0) {

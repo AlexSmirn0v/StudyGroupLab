@@ -1,8 +1,32 @@
 package model;
 
+import java.util.UUID;
+
 public class GroupBuilder {
     private final StudyGroup group = new StudyGroup();
     
+    public GroupBuilder fromCSVString(String csv, String delimiter) throws IllegalArgumentException {
+        String[] parts = csv.split(delimiter);
+        String newDelim = StudyGroup.DELIMITER;
+        if (parts.length != 13) {
+            throw new IllegalArgumentException("Неверный формат CSV строки для StudyGroup");
+        }
+        try {
+            group.setID(Long.valueOf(parts[0].trim()));
+            group.setCreationDate(java.time.LocalDateTime.parse(parts[1].trim()));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Ошибка при парсинге ID или даты создания: " + e.getMessage(), e);
+        }
+        setName(parts[2].trim());
+        setCoords(parts[3].trim() + newDelim + parts[4].trim());
+        setStudentsCount(parts[5].trim());
+        setTransferredStudents(parts[6].trim());
+        setAverageMark(parts[7].trim());
+        setSemesterEnum(parts[8].trim());
+        setGroupAdmin(parts[9].trim() + newDelim + parts[10].trim() + newDelim + parts[11].trim() + newDelim + parts[12].trim());
+        return this;
+    }
+
     public GroupBuilder setName(String name) throws IllegalArgumentException {
         group.setName(name);
         return this;
@@ -39,6 +63,8 @@ public class GroupBuilder {
     }
 
     public StudyGroup build() {
+        group.setID(Integer.toUnsignedLong(Math.abs(UUID.randomUUID().toString().hashCode())));
+        group.setCreationDate(java.time.LocalDateTime.now());
         return group;
     }
 }

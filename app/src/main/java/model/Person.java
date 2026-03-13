@@ -21,6 +21,22 @@ public class Person {
         this.hairColor = hairColor;
     }
 
+    String getName() {
+        return name;
+    }
+
+    int getHeight() {
+        return height;
+    }
+
+    String getPassportID() {
+        return passportID;
+    }
+
+    Color getHairColor() {
+        return hairColor;
+    }
+
     @Override
     public String toString() {
         String res = "";
