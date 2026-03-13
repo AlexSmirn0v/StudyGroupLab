@@ -2,6 +2,9 @@ package model;
 
 import java.util.UUID;
 
+/**
+ * Builder для создания объектов StudyGroup.
+ */
 public class GroupBuilder {
     private final StudyGroup group = new StudyGroup();
     
@@ -9,6 +12,7 @@ public class GroupBuilder {
         String[] parts = csv.split(delimiter);
         String newDelim = StudyGroup.DELIMITER;
         if (parts.length != 13) {
+            System.out.println(parts.length);
             throw new IllegalArgumentException("Неверный формат CSV строки для StudyGroup");
         }
         try {

@@ -3,10 +3,11 @@ package commands;
 import java.util.HashSet;
 import java.util.Scanner;
 
-import model.GroupBuilder;
-import model.GroupParams;
 import model.StudyGroup;
 
+/**
+ * Команда для добавления новой учебной группы, если она минимальная.
+ */
 public class AddMinCommand extends ElementCommand {
     public AddMinCommand(Scanner sc) {
         super(sc);

@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 import model.StudyGroup;
 
+/**
+ * Абстрактный класс, представляющий команду для выполнения операций над коллекцией учебных групп.
+ */
 public abstract class Command {
     public String name;
     private String argument = "";

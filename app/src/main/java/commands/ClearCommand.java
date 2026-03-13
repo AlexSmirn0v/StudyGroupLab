@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 import model.StudyGroup;
 
+/**
+ * Команда для очистки коллекции.
+ */
 public class ClearCommand extends Command {
     public ClearCommand(Scanner sc) {
         super(sc);

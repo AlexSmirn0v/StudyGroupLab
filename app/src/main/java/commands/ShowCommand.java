@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 import model.StudyGroup;
 
+/**
+ * Команда для отображения всех элементов коллекции.
+ */
 public class ShowCommand extends Command {
     public ShowCommand(Scanner sc) {
         super(sc);

@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * Перечисление семестров.
+ */
 public enum Semester implements NamedEnum {
     FIRST("Первый"),
     SECOND("Второй"),

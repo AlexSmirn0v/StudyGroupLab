@@ -6,6 +6,9 @@ import java.util.Scanner;
 import model.GroupParams;
 import model.StudyGroup;
 
+/**
+ * Команда для обновления элемента коллекции по ID.
+ */
 public class UpdateCommand extends Command {
     public UpdateCommand(Scanner sc) {
         super(sc);

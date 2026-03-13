@@ -18,11 +18,15 @@ import commands.*;
 import model.GroupBuilder;
 import model.StudyGroup;
 
+/**
+ * Главный класс приложения для управления коллекцией учебных групп.
+ */
 public class Main {
     static final String ENV_VAR = "GROUPS_FILE";
     static final String CSV_DELIMITER = ";";
 
     static HashMap<String, Command> commandsMap = new HashMap<>();
+    static Deque<String> scriptHistory = new ArrayDeque<>();
     static boolean keepRunning = true;
     static boolean insideFile = false;
     static Deque<String> history = new ArrayDeque<>() {
@@ -39,7 +43,6 @@ public class Main {
     private static HashSet<StudyGroup> loadCollection() {
         HashSet<StudyGroup> collection = new HashSet<>();
         String filename = System.getenv(ENV_VAR);
-
         try (Scanner fileScanner = new Scanner(new BufferedInputStream(new FileInputStream(filename)))) {
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine().trim();
@@ -82,8 +85,8 @@ public class Main {
         Scanner sc = new Scanner(System.in, consoleCharset);
         commandsMap = listCommands(sc);
         System.out.println("Добро пожаловать! Введите 'help' для получения списка доступных команд.");
-
         while (keepRunning) {
+            System.out.print("> ");
             if (!sc.hasNextLine())
                 break;
 
@@ -127,6 +130,11 @@ public class Main {
                     break;
                 case "execute_script":
                     try {
+                        if (scriptHistory.contains(argument)) {
+                            System.out.println("Обнаружена рекурсия при выполнении скрипта: " + argument);
+                            break;
+                        }
+                        scriptHistory.add(argument);
                         sc = new Scanner(new BufferedInputStream(new FileInputStream(argument)));
                         insideFile = true;
                     } catch (FileNotFoundException e) {
@@ -135,6 +143,7 @@ public class Main {
                     break;
                 case "save":
                     saveCollection(groupSet, argument);
+                    System.out.println("Коллекция сохранена в файл " + argument);
                     break;
                 default:
                     command.execute(groupSet);

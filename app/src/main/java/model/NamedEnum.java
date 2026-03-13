@@ -2,6 +2,9 @@ package model;
 
 import java.util.Objects;
 
+/**
+ * Интерфейс для перечислений с именами.
+ */
 public interface NamedEnum {
     public String getName();
 

@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * Класс, представляющий человека (администратора группы).
+ */
 public class Person {
     private String name; // Поле не может быть null, Строка не может быть пустой
     private int height; // Значение поля должно быть больше 0

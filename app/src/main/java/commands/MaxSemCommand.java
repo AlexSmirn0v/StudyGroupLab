@@ -9,6 +9,9 @@ import java.util.Scanner;
 
 import model.StudyGroup;
 
+/**
+ * Команда для отображения группы с максимальным семестром.
+ */
 public class MaxSemCommand extends Command {
     public MaxSemCommand(Scanner sc) {
         super(sc);
@@ -19,9 +22,10 @@ public class MaxSemCommand extends Command {
     public void execute(HashSet<StudyGroup> collection) {
         List<StudyGroup> sortedList = new ArrayList<>(collection);
         Collections.sort(sortedList, Comparator.comparing(StudyGroup::getSemesterEnum).reversed());
-        for (StudyGroup group : sortedList) {
-            System.out.println(group.toString());
-            System.out.println();
+        try {
+            System.out.println(sortedList.get(0).toString());
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Коллекция пуста");
         }
     }
 }

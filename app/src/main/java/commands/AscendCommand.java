@@ -8,6 +8,9 @@ import java.util.Scanner;
 
 import model.StudyGroup;
 
+/**
+ * Команда для сортировки коллекции в порядке возрастания.
+ */
 public class AscendCommand extends Command {
     public AscendCommand(Scanner sc) {
         super(sc);

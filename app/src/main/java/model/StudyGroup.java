@@ -1,16 +1,19 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.function.BiConsumer;
-import java.util.UUID;
 
+/**
+ * Класс, представляющий учебную группу с её характеристиками.
+ */
 public class StudyGroup implements Comparable<StudyGroup> {
     private Long id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого
                      // поля должно быть уникальным, Значение этого поля должно генерироваться
                      // автоматически
     private String name; // Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; // Поле не может быть null
-    private java.time.LocalDateTime creationDate; // Поле не может быть null, Значение этого поля должно генерироваться
+    private LocalDateTime creationDate; // Поле не может быть null, Значение этого поля должно генерироваться
                                                   // автоматически
     private Long studentsCount; // Значение поля должно быть больше 0, Поле может быть null
     private int transferredStudents; // Значение поля должно быть больше 0
@@ -182,23 +185,25 @@ public class StudyGroup implements Comparable<StudyGroup> {
         if (coordinates != null)
             res += coordinates.getX() + delimiter + coordinates.getY() + delimiter;
         else
-            res += delimiter + delimiter;
+            res += " " + delimiter + " " + delimiter;
         if (studentsCount != null)
             res += studentsCount + delimiter;
         else
-            res += delimiter;
+            res += " " +delimiter;
         res += transferredStudents + delimiter;
         res += averageMark + delimiter;
         if (semesterEnum != null)
             res += semesterEnum.getName() + delimiter;
         else
-            res += delimiter;
+            res += " " + delimiter;
         if (groupAdmin != null) {
             res += groupAdmin.getName() + delimiter;
             res += groupAdmin.getHeight() + delimiter;
             res += groupAdmin.getPassportID() + delimiter;
             if (groupAdmin.getHairColor() != null)
-                res += groupAdmin.getHairColor().getName();
+                res += groupAdmin.getHairColor().getName() + delimiter;
+            else
+                res += " " + delimiter;
         }
         return res;
     }
@@ -224,6 +229,10 @@ public class StudyGroup implements Comparable<StudyGroup> {
 
     public Long getId() {
         return id;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
     }
 
     public String getName() {

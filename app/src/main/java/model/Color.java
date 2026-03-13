@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * Перечисление цветов волос.
+ */
 public enum Color implements NamedEnum {
     RED("Красный"),
     BLUE("Синий"),

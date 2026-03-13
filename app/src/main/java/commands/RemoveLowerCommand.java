@@ -3,10 +3,11 @@ package commands;
 import java.util.HashSet;
 import java.util.Scanner;
 
-import model.GroupBuilder;
-import model.GroupParams;
 import model.StudyGroup;
 
+/**
+ * Команда для удаления групп, меньших заданной.
+ */
 public class RemoveLowerCommand extends ElementCommand {
     public RemoveLowerCommand(Scanner sc) {
         super(sc);
@@ -16,7 +17,12 @@ public class RemoveLowerCommand extends ElementCommand {
     @Override
     public void execute(HashSet<StudyGroup> collection) {
         StudyGroup group = askGroup();
-        collection.add(group);
-        System.out.println("Группа успешно добавлена в коллекцию");
+
+        for (StudyGroup g : collection) {
+            if (g.compareTo(group) < 0) {
+                collection.remove(g);
+                System.out.println("Группа " + g.getName() + " была удалена из коллекции");
+            }
+        }
     }
 }

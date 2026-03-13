@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 import model.StudyGroup;
 
+/**
+ * Команда для фильтрации элементов коллекции по имени.
+ */
 public class FilterCommand extends Command {
     public FilterCommand(Scanner sc) {
         super(sc);

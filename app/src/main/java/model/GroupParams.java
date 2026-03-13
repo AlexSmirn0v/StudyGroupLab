@@ -2,6 +2,9 @@ package model;
 
 import java.util.List;
 
+/**
+ * Перечисление параметров учебной группы.
+ */
 public enum GroupParams implements NamedEnum {
     NAME("Название", "название группы"),
     COORDS("Координаты", List.of("первую координату (x)", "вторую координату (y)")),

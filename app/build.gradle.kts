@@ -38,3 +38,9 @@ application {
     // Define the main class for the application.
     mainClass = "Main"
 }
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "Main"
+    }
+}

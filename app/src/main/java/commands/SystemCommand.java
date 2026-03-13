@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 import model.StudyGroup;
 
+/**
+ * Абстрактный класс для системных команд.
+ */
 public abstract class SystemCommand extends Command {
     public SystemCommand(Scanner sc) {
         super(sc);

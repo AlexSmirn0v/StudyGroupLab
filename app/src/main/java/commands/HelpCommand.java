@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 import model.StudyGroup;
 
+/**
+ * Команда для отображения справки по командам.
+ */
 public class HelpCommand extends Command {
     public HelpCommand(Scanner sc) {
         super(sc);

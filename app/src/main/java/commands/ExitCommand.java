@@ -2,9 +2,12 @@ package commands;
 
 import java.util.Scanner;
 
+/**
+ * Команда для выхода из приложения.
+ */
 public class ExitCommand extends SystemCommand {
-    public static final String name = "exit";
     public ExitCommand(Scanner sc) {
         super(sc);
+        name = "exit";
     }
 }
