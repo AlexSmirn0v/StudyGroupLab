@@ -30,6 +30,10 @@ java {
     }
 }
 
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
 application {
     // Define the main class for the application.
     mainClass = "Main"

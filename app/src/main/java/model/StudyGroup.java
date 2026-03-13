@@ -4,7 +4,7 @@ import java.util.EnumMap;
 import java.util.function.BiConsumer;
 import java.util.UUID;
 
-public class StudyGroup {
+public class StudyGroup implements Comparable<StudyGroup> {
     private Long id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого
                      // поля должно быть уникальным, Значение этого поля должно генерироваться
                      // автоматически
@@ -37,6 +37,31 @@ public class StudyGroup {
         this.creationDate = java.time.LocalDateTime.now();
     }
 
+    @Override
+    public int compareTo(StudyGroup other) {
+        if (this.semesterEnum == null && other.semesterEnum == null) {
+            return 0;
+        } else if (this.semesterEnum == null) {
+            return -1;
+        } else if (other.semesterEnum == null) {
+            return 1;
+        } else if (this.semesterEnum.compareTo(other.semesterEnum) != 0) {
+            return this.semesterEnum.compareTo(other.semesterEnum);
+        }
+
+        if (this.studentsCount == null && other.studentsCount == null) {
+            return 0;
+        } else if (this.studentsCount == null) {
+            return -1;
+        } else if (other.studentsCount == null) {
+            return 1;
+        } else if (this.studentsCount.compareTo(other.studentsCount) != 0) {
+            return this.studentsCount.compareTo(other.studentsCount);
+        }
+
+        return this.transferredStudents - other.transferredStudents;
+    }
+
     void setName(String newName) throws IllegalArgumentException {
         if (newName == null || newName.isBlank())
             throw new IllegalArgumentException("Пустая строка");
@@ -53,8 +78,6 @@ public class StudyGroup {
                     && !newCoords.split(DELIMITER)[1].isBlank()) {
                 x = Long.valueOf(newCoords.split(DELIMITER)[0]);
                 y = Long.valueOf(newCoords.split(DELIMITER)[1]);
-                System.out.println(x);
-                System.out.println(y);
             } else {
                 x = Long.valueOf(newCoords);
             }
@@ -121,22 +144,68 @@ public class StudyGroup {
     void setPerson(String persDesription) throws IllegalArgumentException {
         if (persDesription == null || persDesription.isBlank())
             throw new IllegalArgumentException("Пустая строка");
-        String[] params = persDesription.split(DELIMITER);
+        String name;
+        int height = 0;
+        String passportID;
+        Color hairColor = null;
+        try {
+            if (!persDesription.contains(DELIMITER) || persDesription.split(DELIMITER).length < 3) {
+                throw new IllegalArgumentException("Недостаточное количество элементов");
+            }
 
-        //TODO: Закончить метод
+            String[] parts = persDesription.split(DELIMITER);
+            name = parts[0];
+            height = Integer.valueOf(parts[1]);
+            passportID = parts[2];
+            if (parts.length > 3 && !parts[3].isBlank())
+                hairColor = Color.getByName(parts[3]);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Неверный формат числа");
+        }
+        this.groupAdmin = new Person(name, height, passportID, hairColor);
     }
 
     @Override
     public String toString() {
-        return "Название: " + name;
+        String res = "";
+        res += "ID: " + id + "\n";
+        res += "Дата создания: " + creationDate.toString() + "\n";
+        res += GroupParams.NAME.getName() + ": " + name + "\n";
+        if (coordinates != null)
+            res += GroupParams.COORDS.getName() + ": " + coordinates.toString() + "\n";
+        if (studentsCount != null)
+            res += GroupParams.STUDENTS_COUNT.getName() + ": " + studentsCount + "\n";
+        res += GroupParams.TRANSFERRED_STUDENTS.getName() + ": " + transferredStudents + "\n";
+        res += GroupParams.AVERAGE_MARK.getName() + ": " + averageMark + "\n";
+        if (semesterEnum != null)
+            res += GroupParams.SEMESTER_ENUM.getName() + ": " + semesterEnum.getName() + "\n";
+        if (groupAdmin != null)
+            res += GroupParams.GROUP_ADMIN.getName() + ": " + groupAdmin.toString();
+        return res;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void edit(String prop, String val) throws IllegalArgumentException {
-        BiConsumer<StudyGroup, String> setter = SETTERS.get(GroupParams.getByName(prop));
+    public String getName() {
+        return name;
+    }
+
+    public Semester getSemesterEnum() {
+        return semesterEnum;
+    }
+
+    public Long getStudentsCount() {
+        return studentsCount;
+    }
+
+    public int getTransferredStudents() {
+        return transferredStudents;
+    }
+
+    public void edit(GroupParams prop, String val) throws IllegalArgumentException {
+        BiConsumer<StudyGroup, String> setter = SETTERS.get(prop);
 
         if (setter == null)
             throw new IllegalArgumentException("Неизвестное свойство");

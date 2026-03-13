@@ -7,10 +7,10 @@ import model.GroupBuilder;
 import model.GroupParams;
 import model.StudyGroup;
 
-public class AddCommand extends ElementCommand {
-    public AddCommand(Scanner sc) {
+public class RemoveLowerCommand extends ElementCommand {
+    public RemoveLowerCommand(Scanner sc) {
         super(sc);
-        name = "add";
+        name = "remove_lower";
     }
 
     @Override

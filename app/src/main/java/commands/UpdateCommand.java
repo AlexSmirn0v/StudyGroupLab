@@ -17,7 +17,8 @@ public class UpdateCommand extends Command {
         StudyGroup groupToUpdate = null;
         while (true) {
             try {
-                Long id = Long.parseLong(getInput(null));
+                String arg = popArgument();
+                Long id = Long.parseLong(arg.isBlank() ? getInput(null) : arg);
                 for (StudyGroup group : collection) {
                     if (group.getId().equals(id)) {
                         groupToUpdate = group;
@@ -39,8 +40,13 @@ public class UpdateCommand extends Command {
             try {
                 String prop = getInput(
                         "Введите название поля для изменения (" + String.join(", ", GroupParams.getStringItems()) + "): ");
-                String val = getInput("Введите новое значение: ");
-                groupToUpdate.edit(prop, val);
+                GroupParams param = GroupParams.getByName(prop);
+                String[] inputAsks = param.getInputAsks();
+                String[] val = new String[inputAsks.length];
+                for (int i = 0; i < inputAsks.length; i++) {
+                    val[i] = getInput("Введите " + inputAsks[i] + ": ");
+                }
+                groupToUpdate.edit(param, String.join(StudyGroup.DELIMITER, val));
                 break;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());

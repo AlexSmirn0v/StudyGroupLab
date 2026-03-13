@@ -20,4 +20,15 @@ public class Person {
         this.passportID = passportID;
         this.hairColor = hairColor;
     }
+
+    @Override
+    public String toString() {
+        String res = "";
+        res += "Имя: " + name + "\n";
+        res += "Рост: " + height + "\n";
+        res += "ID паспорта: " + passportID + "\n";
+        res += "Цвет волос: " + (hairColor != null ? hairColor.getName() : "не указан");
+        return res;
+    }
+
 }

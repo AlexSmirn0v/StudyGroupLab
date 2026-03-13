@@ -7,10 +7,10 @@ import model.GroupBuilder;
 import model.GroupParams;
 import model.StudyGroup;
 
-public class AddCommand extends ElementCommand {
-    public AddCommand(Scanner sc) {
+public class AddMinCommand extends ElementCommand {
+    public AddMinCommand(Scanner sc) {
         super(sc);
-        name = "add";
+        name = "add_if_min";
     }
 
     @Override
@@ -25,7 +25,18 @@ public class AddCommand extends ElementCommand {
         askUntilValid(makeDesc(GroupParams.GROUP_ADMIN.getInputAsks()), builder::setGroupAdmin);
 
         StudyGroup group = builder.build();
-        collection.add(group);
-        System.out.println("Группа успешно добавлена в коллекцию");
+        boolean shouldAdd = true;
+        for (StudyGroup existingGroup : collection) {
+            if (group.compareTo(existingGroup) >= 0) {
+                shouldAdd = false;
+                break;
+            }
+        }
+        if (shouldAdd) {
+            collection.add(group);
+            System.out.println("Группа успешно добавлена в коллекцию");
+        } else {
+            System.out.println("Группа не была добавлена, так как она не является минимальной");
+        }
     }
 }
