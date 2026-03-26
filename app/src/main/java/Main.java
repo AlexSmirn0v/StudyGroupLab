@@ -68,6 +68,7 @@ public class Main {
                 writer.newLine();
             }
             writer.flush();
+            System.out.println("Коллекция сохранена в файл " + filename);
         } catch (FileNotFoundException e) {
             System.out.println("Файл не найден или не может быть открыт для записи: " + filename);
         } catch (IOException e) {
@@ -143,7 +144,6 @@ public class Main {
                     break;
                 case "save":
                     saveCollection(groupSet, argument);
-                    System.out.println("Коллекция сохранена в файл " + argument);
                     break;
                 default:
                     command.execute(groupSet);

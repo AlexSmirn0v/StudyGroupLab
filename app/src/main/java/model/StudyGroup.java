@@ -91,7 +91,7 @@ public class StudyGroup implements Comparable<StudyGroup> {
                 x = Long.valueOf(newCoords.split(DELIMITER)[0]);
                 y = Long.valueOf(newCoords.split(DELIMITER)[1]);
             } else {
-                x = Long.valueOf(newCoords);
+                x = Long.valueOf(newCoords.trim());
             }
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Неверный формат числа");
