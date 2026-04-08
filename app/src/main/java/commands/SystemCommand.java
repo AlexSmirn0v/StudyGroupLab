@@ -13,9 +13,12 @@ public abstract class SystemCommand extends Command {
         super(sc);
     }
 
+    /**
+     * Ничего не выполняет, так как для системных команд выполнение обрабатывается в основном цикле приложения.
+     * @param collection коллекция учебных групп
+     */
     @Override
     public void execute(HashSet<StudyGroup> collection) {
-        // Системные команды обрабатываются в основном цикле, поэтому при запуске execute ничего не происходит.
         return;
     }
     

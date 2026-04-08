@@ -9,6 +9,14 @@ public class Person {
     private String passportID; // Поле не может быть null
     private Color hairColor; // Поле может быть null
 
+    /**
+     * Создает объект человека.
+     * @param name имя человека (не может быть null или пустым)
+     * @param height рост человека (должен быть больше 0)
+     * @param passportID ID паспорта (не может быть null)
+     * @param hairColor цвет волос (может быть null)
+     * @throws IllegalArgumentException если параметры некорректны
+     */
     Person(String name, int height, String passportID, Color hairColor)
             throws IllegalArgumentException {
         if (name == null || name.isBlank())
@@ -40,6 +48,10 @@ public class Person {
         return hairColor;
     }
 
+    /**
+     * Возвращает объект человека в виде строки.
+     * @return строковое представление с именем, ростом, ID паспорта и цветом волос
+     */
     @Override
     public String toString() {
         String res = "";

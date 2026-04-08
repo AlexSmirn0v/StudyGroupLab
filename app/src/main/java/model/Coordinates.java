@@ -7,6 +7,12 @@ public class Coordinates {
     private Long x; // Поле не может быть null
     private long y;
 
+    /**
+     * Создает объект координат.
+     * @param x координата x (не может быть null)
+     * @param y координата y
+     * @throws IllegalArgumentException если x равен null
+     */
     public Coordinates(Long x, long y) throws IllegalArgumentException {
         if (x == null) {
             throw new IllegalArgumentException("x не может быть null");

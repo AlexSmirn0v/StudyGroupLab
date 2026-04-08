@@ -34,6 +34,10 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
+tasks.withType<Javadoc> {
+    options.encoding = "UTF-8"
+}
+
 application {
     // Define the main class for the application.
     mainClass = "Main"

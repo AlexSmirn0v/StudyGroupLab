@@ -14,22 +14,43 @@ public abstract class Command {
     final Scanner scan;
     final static String errorMessage = "Неверный ввод. Пожалуйста, повторите попытку";
 
+    /**
+     * Создает объект команды.
+     * @param sc сканер для чтения ввода
+     */
     Command(Scanner sc) {
         scan = sc;
     }
 
+    /**
+     * Записывает аргумент команды в локальную переменную.
+     * @param arg аргумент команды
+     */
     public void setArgument(String arg) {
         argument = arg == null ? "" : arg.trim();
     }
 
+    /**
+     * Извлекает и возвращает аргумент команды.
+     * @return аргумент команды
+     */
     protected String popArgument() {
         String result = argument;
         argument = "";
         return result;
     }
 
+    /**
+     * Выполняет команду.
+     * @param collection коллекция учебных групп
+     */
     abstract public void execute(HashSet<StudyGroup> collection);
 
+    /**
+     * Получает ввод от пользователя.
+     * @param description описание запрашиваемого параметра
+     * @return введенная строка
+     */
     protected String getInput(String description) {
         if (description != null && !description.isBlank())
             System.out.println(description);

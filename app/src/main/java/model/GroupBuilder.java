@@ -2,6 +2,8 @@ package model;
 
 import java.util.UUID;
 
+import utils.CSVTools;
+
 /**
  * Builder для создания объектов StudyGroup.
  */
@@ -9,7 +11,7 @@ public class GroupBuilder {
     private final StudyGroup group = new StudyGroup();
     
     public GroupBuilder fromCSVString(String csv, String delimiter) throws IllegalArgumentException {
-        String[] parts = csv.split(delimiter);
+        String[] parts = CSVTools.parseCSVLine(csv, delimiter);
         String newDelim = StudyGroup.DELIMITER;
         if (parts.length != 13) {
             System.out.println(parts.length);

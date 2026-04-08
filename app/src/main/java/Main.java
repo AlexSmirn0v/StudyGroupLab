@@ -61,7 +61,8 @@ public class Main {
         return collection;
     }
 
-    private static void saveCollection(HashSet<StudyGroup> collection, String filename) {
+    private static void saveCollection(HashSet<StudyGroup> collection) {
+        String filename = System.getenv(ENV_VAR);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, StandardCharsets.UTF_8))) {
             for (StudyGroup group : collection) {
                 writer.write(group.toCSVString(CSV_DELIMITER));
@@ -131,19 +132,23 @@ public class Main {
                     break;
                 case "execute_script":
                     try {
-                        if (scriptHistory.contains(argument)) {
+                        java.io.File f = new java.io.File(argument);
+                        String scriptPath = f.getCanonicalPath();
+                        if (scriptHistory.contains(scriptPath)) {
                             System.out.println("Обнаружена рекурсия при выполнении скрипта: " + argument);
                             break;
                         }
                         scriptHistory.add(argument);
-                        sc = new Scanner(new BufferedInputStream(new FileInputStream(argument)));
+                        sc = new Scanner(new BufferedInputStream(new FileInputStream(scriptPath)), consoleCharset);
                         insideFile = true;
                     } catch (FileNotFoundException e) {
                         System.out.println("Файл не найден или не может быть открыт: " + argument);
+                    } catch (java.io.IOException e) {
+                        System.out.println("Ошибка при открытии скрипта: " + e.getMessage());
                     }
                     break;
                 case "save":
-                    saveCollection(groupSet, argument);
+                    saveCollection(groupSet);
                     break;
                 default:
                     command.execute(groupSet);
