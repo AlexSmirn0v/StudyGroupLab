@@ -70,7 +70,7 @@ public class Main {
             }
             writer.flush();
             System.out.println("Коллекция сохранена в файл " + filename);
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | NullPointerException e) {
             System.out.println("Файл не найден или не может быть открыт для записи: " + filename);
         } catch (IOException e) {
             System.out.println("Ошибка при сохранении коллекции");
@@ -108,6 +108,7 @@ public class Main {
                     if (insideFile) {
                         sc = new Scanner(System.in, consoleCharset);
                         insideFile = false;
+                        scriptHistory.clear();
                         System.out.println("Завершение выполнения скрипта. Возвращение к консольному режиму.");
                     } else {
                         keepRunning = false;
@@ -138,7 +139,7 @@ public class Main {
                             System.out.println("Обнаружена рекурсия при выполнении скрипта: " + argument);
                             break;
                         }
-                        scriptHistory.add(argument);
+                        scriptHistory.add(scriptPath);
                         sc = new Scanner(new BufferedInputStream(new FileInputStream(scriptPath)), consoleCharset);
                         insideFile = true;
                     } catch (FileNotFoundException e) {

@@ -188,11 +188,10 @@ public class StudyGroup implements Comparable<StudyGroup> {
      */
     void setCount(String studentsCount) throws IllegalArgumentException {
         Long countLong;
-        countLong = valueOf(studentsCount, Long.class, GroupParams.STUDENTS_COUNT.getName());
         if (studentsCount == null || studentsCount.isBlank()) {
             countLong = null;
         } else
-            throw new IllegalArgumentException("Неверный формат числа " + GroupParams.STUDENTS_COUNT.getName());
+            countLong = valueOf(studentsCount, Long.class, GroupParams.STUDENTS_COUNT.getName());
         if (countLong == null || countLong > 0) {
             this.studentsCount = countLong;
         } else

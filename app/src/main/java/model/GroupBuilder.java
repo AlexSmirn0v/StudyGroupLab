@@ -13,7 +13,7 @@ public class GroupBuilder {
     public GroupBuilder fromCSVString(String csv, String delimiter) throws IllegalArgumentException {
         String[] parts = CSVTools.parseCSVLine(csv, delimiter);
         String newDelim = StudyGroup.DELIMITER;
-        if (parts.length != 13) {
+        if (parts.length < 13) {
             System.out.println(parts.length);
             throw new IllegalArgumentException("Неверный формат CSV строки для StudyGroup");
         }
