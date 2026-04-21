@@ -3,6 +3,7 @@ package commands;
 import java.util.HashSet;
 import java.util.Scanner;
 
+import model.CommandName;
 import model.StudyGroup;
 
 /**
@@ -11,19 +12,13 @@ import model.StudyGroup;
 public class AddMinCommand extends ElementCommand {
     public AddMinCommand(Scanner sc) {
         super(sc);
-        name = "add_if_min";
+        name = CommandName.ADD_MIN.getName();
     }
 
     @Override
     public void execute(HashSet<StudyGroup> collection) {
         StudyGroup group = askGroup();
-        boolean shouldAdd = true;
-        for (StudyGroup existingGroup : collection) {
-            if (group.compareTo(existingGroup) >= 0) {
-                shouldAdd = false;
-                break;
-            }
-        }
+        boolean shouldAdd = collection.stream().allMatch(x -> group.compareTo(x) < 0);
         if (shouldAdd) {
             collection.add(group);
             System.out.println("Группа успешно добавлена в коллекцию");

@@ -20,8 +20,9 @@ public class MaxSemCommand extends Command {
 
     @Override
     public void execute(HashSet<StudyGroup> collection) {
-        List<StudyGroup> sortedList = new ArrayList<>(collection);
-        Collections.sort(sortedList, Comparator.comparing(StudyGroup::getSemesterEnum).reversed());
+        List<StudyGroup> sortedList = collection.stream()
+        .sorted(Comparator.comparing(StudyGroup::getSemesterEnum).reversed()).toList();
+        
         try {
             System.out.println(sortedList.get(0).toString());
         } catch (IndexOutOfBoundsException e) {

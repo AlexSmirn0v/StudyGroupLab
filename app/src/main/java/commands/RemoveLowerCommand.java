@@ -18,11 +18,9 @@ public class RemoveLowerCommand extends ElementCommand {
     public void execute(HashSet<StudyGroup> collection) {
         StudyGroup group = askGroup();
 
-        for (StudyGroup g : collection) {
-            if (g.compareTo(group) < 0) {
-                collection.remove(g);
-                System.out.println("Группа " + g.getName() + " была удалена из коллекции");
-            }
-        }
+        collection.stream().filter((StudyGroup gr) -> gr.compareTo(group) < 0).forEach(gr -> {
+            collection.remove(gr);
+            System.out.println("Группа " + gr.getName() + " была удалена из коллекции");
+        });
     }
 }

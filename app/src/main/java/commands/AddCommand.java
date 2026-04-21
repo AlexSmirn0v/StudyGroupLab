@@ -3,6 +3,7 @@ package commands;
 import java.util.HashSet;
 import java.util.Scanner;
 
+import model.CommandName;
 import model.StudyGroup;
 
 /**
@@ -11,7 +12,7 @@ import model.StudyGroup;
 public class AddCommand extends ElementCommand {
     public AddCommand(Scanner sc) {
         super(sc);
-        name = "add";
+        name = CommandName.ADD.getName();
     }
 
     @Override

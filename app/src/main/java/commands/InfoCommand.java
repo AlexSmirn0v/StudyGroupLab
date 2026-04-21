@@ -1,6 +1,8 @@
 package commands;
 
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Scanner;
 import java.time.LocalDateTime;
 
@@ -18,15 +20,17 @@ public class InfoCommand extends Command {
     @Override
     public void execute(HashSet<StudyGroup> collection) {
         System.out.println("Количество элементов: " + collection.size());
-        int sumParticipants = 0;
-        LocalDateTime creationDate = null;
+        
+        long sumParticipants = collection.stream()
+        .map((StudyGroup gr) -> gr.getStudentsCount())
+        .reduce(Long.valueOf(0), (a, b) -> a + b);
 
-        for (StudyGroup group : collection) {
-            sumParticipants += group.getStudentsCount();
-            if (creationDate == null || group.getCreationDate().isBefore(creationDate)) {
-                creationDate = group.getCreationDate();
-            }
-        }
+        LocalDateTime creationDate = collection.stream()
+        .map((StudyGroup gr) -> gr.getCreationDate())
+        .filter(Objects::nonNull)
+        .min(Comparator.naturalOrder())
+        .orElse(null);
+
         System.out.println("Общее количество студентов: " + sumParticipants);
         System.out.println("Дата инициализации коллекции: " + (creationDate != null ? creationDate.toString() : "Не установлена"));
     }

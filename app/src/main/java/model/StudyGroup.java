@@ -1,5 +1,6 @@
 package model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.function.BiConsumer;
@@ -10,7 +11,7 @@ import utils.CSVTools;
 /**
  * Класс, представляющий учебную группу с её характеристиками.
  */
-public class StudyGroup implements Comparable<StudyGroup> {
+public class StudyGroup implements Comparable<StudyGroup>, Serializable {
     private Long id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого
                      // поля должно быть уникальным, Значение этого поля должно генерироваться
                      // автоматически

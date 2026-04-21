@@ -17,11 +17,12 @@ public class FilterCommand extends Command {
     @Override
     public void execute(HashSet<StudyGroup> collection) {
         String name = popArgument();
-        for (StudyGroup group : collection) {
-            if (!group.getName().contains(name)) continue;
+        HashSet<StudyGroup> res = new HashSet<>(
+                collection.stream().filter((StudyGroup group) -> group.getName().contains(name)).toList());
+        for (StudyGroup group : res) {
             System.out.println(group.toString());
             System.out.println();
         }
     }
-    
+
 }

@@ -1,5 +1,6 @@
 package commands;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -8,7 +9,7 @@ import model.StudyGroup;
 /**
  * Абстрактный класс, представляющий команду для выполнения операций над коллекцией учебных групп.
  */
-public abstract class Command {
+public abstract class Command implements Serializable {
     public String name;
     private String argument = "";
     final Scanner scan;
