@@ -89,9 +89,13 @@ final public class ClientMain {
                 continue;
             try {
                 connector.sendMessage(message);
+                Object response = connector.readResponse();
+                ResponsePrinter.print(response);
             } catch (IOException e) {
                 System.out.println(e.getClass().getSimpleName() + e.getMessage());
                 System.out.println("Отсутствует подключение к серверу");
+            } catch (ClassNotFoundException e) {
+                System.out.println("Не удалось прочитать ответ сервера: " + e.getMessage());
             }
         }
     }

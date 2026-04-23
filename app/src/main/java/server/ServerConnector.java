@@ -1,10 +1,6 @@
 package server;
 
-import model.CommandMessage;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -22,7 +18,7 @@ public class ServerConnector {
     private final int port;
     private final Selector selector;
     private final ServerSocketChannel serverChannel;
-    private final Queue<CommandMessage> requestQueue = new ArrayDeque<>();
+    private final Queue<IncomingRequest> payloadQueue = new ArrayDeque<>();
 
     ServerConnector(int port) throws IOException {
         this.port = port;
@@ -37,6 +33,10 @@ public class ServerConnector {
     static class ClientState {
         final ByteBuffer lengthBuffer = ByteBuffer.allocate(LENGTH_BYTES);
         ByteBuffer dataBuffer;
+        final Queue<ByteBuffer> pendingWrites = new ArrayDeque<>();
+    }
+
+    public record IncomingRequest(SocketChannel client, byte[] payload) {
     }
 
     public void pump(long timeoutMs) throws IOException {
@@ -62,6 +62,9 @@ public class ServerConnector {
                 if (key.isReadable()) {
                     read(key);
                 }
+                if (key.isWritable()) {
+                    write(key);
+                }
             } catch (IOException e) {
                 closeClient(key, "I/O ошибка: " + e.getMessage());
             } catch (ClassNotFoundException | IllegalStateException e) {
@@ -70,8 +73,35 @@ public class ServerConnector {
         }
     }
 
-    public CommandMessage pollRequest() {
-        return requestQueue.poll();
+    public IncomingRequest pollRequest() {
+        return payloadQueue.poll();
+    }
+
+    public void queueResponse(SocketChannel client, byte[] payload) throws IOException {
+        if (payload == null || payload.length == 0) {
+            throw new IllegalArgumentException("Ответ не может быть пустым");
+        }
+        if (payload.length > MAX_MESSAGE_BYTES) {
+            throw new IllegalArgumentException("Размер ответа превышает лимит: " + payload.length);
+        }
+
+        SelectionKey key = client.keyFor(selector);
+        if (key == null || !key.isValid()) {
+            throw new IOException("Клиент не зарегистрирован в селекторе");
+        }
+
+        ClientState state = (ClientState) key.attachment();
+        if (state == null) {
+            throw new IllegalStateException("Отсутствует состояние клиента");
+        }
+
+        ByteBuffer framed = ByteBuffer.allocate(LENGTH_BYTES + payload.length);
+        framed.putInt(payload.length);
+        framed.put(payload);
+        framed.flip();
+
+        state.pendingWrites.offer(framed);
+        key.interestOps(key.interestOps() | SelectionKey.OP_WRITE | SelectionKey.OP_READ);
     }
 
     private void accept() throws IOException {
@@ -127,19 +157,27 @@ public class ServerConnector {
         byte[] payload = new byte[state.dataBuffer.remaining()];
         state.dataBuffer.get(payload);
         state.dataBuffer = null;
-
-        Object request = deserialize(payload);
-        if (!(request instanceof CommandMessage commandMessage)) {
-            throw new IllegalStateException("Ожидался CommandMessage, получено: " + request.getClass().getName());
-        }
-        requestQueue.offer(commandMessage);
-        ServerLogger.log("Распакован запрос: " + commandMessage);
+        payloadQueue.offer(new IncomingRequest(channel, payload));
+        ServerLogger.log("Получен набор байтов: " + payload);
     }
 
-    private static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream objectInput = new ObjectInputStream(new ByteArrayInputStream(data))) {
-            return objectInput.readObject();
+    private void write(SelectionKey key) throws IOException {
+        SocketChannel channel = (SocketChannel) key.channel();
+        ClientState state = (ClientState) key.attachment();
+        if (state == null) {
+            throw new IllegalStateException("Отсутствует состояние клиента");
         }
+
+        while (!state.pendingWrites.isEmpty()) {
+            ByteBuffer current = state.pendingWrites.peek();
+            channel.write(current);
+            if (current.hasRemaining()) {
+                return;
+            }
+            state.pendingWrites.poll();
+        }
+
+        key.interestOps(SelectionKey.OP_READ);
     }
 
     private void closeClient(SelectionKey key, String reason) {

@@ -2,7 +2,9 @@ package client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -11,26 +13,14 @@ import model.CommandMessage;
 
 public class TCPConnector implements AutoCloseable{
     private SocketChannel channel;
+    private static final int MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
+    private static final int RECONNECT_ATTEMPTS = 5;
+    private static final int RECONNECT_DELAY_MS = 2000;
+    private final InetSocketAddress serverAddress;
 
     TCPConnector(int port) throws IOException{
-        InetSocketAddress addr = new InetSocketAddress("localhost", port);
-
-        for (int i = 1; i <= 5; i++) {
-            try {
-                channel = SocketChannel.open();
-                channel.connect(addr);
-                return;
-            } catch (IOException e) {
-                System.out.println("Сервер недоступен, переподключаюсь, попытка " + i);
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e2) {
-                    Thread.currentThread().interrupt();
-                    throw new IOException("Подключение прервано", e2);
-                }
-            }
-        }
-        throw new IOException("Попытка не удалась");
+        this.serverAddress = new InetSocketAddress("localhost", port);
+        reconnect();
     }
 
     public void sendMessage(CommandMessage mess) throws IOException {
@@ -47,11 +37,90 @@ public class TCPConnector implements AutoCloseable{
         buff.put(data);
         buff.flip();
 
-        channel.write(buff);
+        try {
+            writeFully(buff);
+        } catch (IOException firstError) {
+            reconnect();
+            try {
+                writeFully(buff);
+            } catch (IOException secondError) {
+                secondError.addSuppressed(firstError);
+                throw secondError;
+            }
+        }
+    }
+
+    public Object readResponse() throws IOException, ClassNotFoundException {
+        ByteBuffer lengthBuffer = ByteBuffer.allocate(Integer.BYTES);
+        readFully(lengthBuffer);
+        lengthBuffer.flip();
+
+        int responseLength = lengthBuffer.getInt();
+        if (responseLength <= 0 || responseLength > MAX_RESPONSE_BYTES) {
+            throw new IOException("Недопустимый размер ответа: " + responseLength);
+        }
+
+        ByteBuffer responseBuffer = ByteBuffer.allocate(responseLength);
+        readFully(responseBuffer);
+
+        try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(responseBuffer.array()))) {
+            return input.readObject();
+        }
+    }
+
+    private void readFully(ByteBuffer buffer) throws IOException {
+        while (buffer.hasRemaining()) {
+            int read = channel.read(buffer);
+            if (read == -1) {
+                throw new IOException("Соединение закрыто сервером");
+            }
+        }
+    }
+
+    private void writeFully(ByteBuffer buffer) throws IOException {
+        while (buffer.hasRemaining()) {
+            int written = channel.write(buffer);
+            if (written == -1) {
+                throw new IOException("Соединение закрыто сервером");
+            }
+        }
+    }
+
+    private void reconnect() throws IOException {
+        try {
+            close();
+        } catch (IOException e) {
+            
+        }
+
+        for (int i = 1; i <= RECONNECT_ATTEMPTS; i++) {
+            try {
+                channel = SocketChannel.open();
+                channel.connect(serverAddress);
+                return;
+            } catch (IOException e) {
+                System.out.println("Сервер недоступен, переподключаюсь, попытка " + i);
+                if (i == RECONNECT_ATTEMPTS) {
+                    throw new IOException("Попытка переподключения не удалась", e);
+                }
+                sleepBeforeRetry();
+            }
+        }
+    }
+
+    private static void sleepBeforeRetry() throws IOException {
+        try {
+            Thread.sleep(RECONNECT_DELAY_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Подключение прервано", e);
+        }
     }
 
     @Override
     public void close() throws IOException {
-        channel.close();
+        if (channel != null) {
+            channel.close();
+        }
     }
 }

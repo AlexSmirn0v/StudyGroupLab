@@ -1,6 +1,8 @@
 package model;
 
-import java.io.Serializable;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.function.BiConsumer;
@@ -11,7 +13,7 @@ import utils.CSVTools;
 /**
  * Класс, представляющий учебную группу с её характеристиками.
  */
-final public class StudyGroup implements Comparable<StudyGroup>, Serializable, Sendable {
+final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
     private Long id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого
                      // поля должно быть уникальным, Значение этого поля должно генерироваться
                      // автоматически
@@ -334,6 +336,18 @@ final public class StudyGroup implements Comparable<StudyGroup>, Serializable, S
         if (groupAdmin != null)
             res += GroupParams.GROUP_ADMIN.getName() + ": " + groupAdmin.toString();
         return res;
+    }
+
+    public static long getSerializedSize(StudyGroup obj) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(obj);
+            oos.close();
+            return baos.size();
+        } catch (IOException e) {
+            return 0;
+        }
     }
 
     public StudyGroup value() {

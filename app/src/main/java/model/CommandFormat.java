@@ -1,22 +1,22 @@
 package model;
 
-import java.util.HashSet;
+import java.util.List;
 
 public enum CommandFormat implements NamedEnum {
     ADD("add", StudyGroup.class, String.class),
     ADD_MIN("add_min", StudyGroup.class, String.class),
-    ASCEND("print_ascending", HashSet.class),
+    ASCEND("print_ascending", List.class),
     CLEAR("clear", String.class),
     EXECUTE("execute", Void.class),
     EXIT("exit", Void.class),
-    FILTER("filter_contains_name", String.class, HashSet.class),
+    FILTER("filter_contains_name", String.class, List.class),
     HELP("help", String.class),
     HISTORY("history", String.class),
     INFO("info", String.class),
-    MAX_SEM("max_by_semester_enum", StudyGroup.class),
+    MAX_SEM("max_by_semester_enum", String.class),
     REMOVE("remove_by_id", Long.class, String.class),
     REMOVE_LOW("remove_lower", StudyGroup.class, String.class),
-    SHOW("show", HashSet.class),
+    SHOW("show", List.class),
     UPDATE("update", UpdateRequest.class, String.class);
 
     private final String name;

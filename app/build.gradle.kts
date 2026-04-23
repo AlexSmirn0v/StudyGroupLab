@@ -35,15 +35,6 @@ java {
     }
 }
 
-sourceSets {
-    named("main") {
-        java {
-            exclude("commands/**")
-            exclude("OldMain.java")
-        }
-    }
-}
-
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }

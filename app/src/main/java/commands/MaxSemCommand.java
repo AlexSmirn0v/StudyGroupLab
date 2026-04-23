@@ -3,28 +3,28 @@ package commands;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 
+import model.CommandFormat;
 import model.StudyGroup;
 
 /**
  * Команда для отображения группы с максимальным семестром.
  */
-public class MaxSemCommand extends Command<Void> {
-    public MaxSemCommand(Scanner sc) {
-        super(sc);
-        name = "max_by_semester_enum";
+public class MaxSemCommand extends Command<Void, String> {
+    public MaxSemCommand() {
+        super();
+        name = CommandFormat.MAX_SEM.getName();
     }
 
     @Override
-    public void execute(HashSet<StudyGroup> collection) {
+    public String execute(HashSet<StudyGroup> collection, Void empty) {
         List<StudyGroup> sortedList = collection.stream()
         .sorted(Comparator.comparing(StudyGroup::getSemesterEnum).reversed()).toList();
         
         try {
-            System.out.println(sortedList.get(0).toString());
+            return sortedList.get(0).toString();
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("Коллекция пуста");
+            return "Коллекция пуста";
         }
     }
 }
