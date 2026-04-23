@@ -46,16 +46,4 @@ public abstract class Command implements Serializable {
      * @param collection коллекция учебных групп
      */
     abstract public void execute(HashSet<StudyGroup> collection);
-
-    /**
-     * Получает ввод от пользователя.
-     * @param description описание запрашиваемого параметра
-     * @return введенная строка
-     */
-    protected String getInput(String description) {
-        if (description != null && !description.isBlank())
-            System.out.println(description);
-        String res = scan.nextLine().trim();
-        return res;
-    }
 }

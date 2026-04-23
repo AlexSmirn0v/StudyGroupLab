@@ -3,7 +3,7 @@ package commands;
 import java.util.HashSet;
 import java.util.Scanner;
 
-import model.CommandName;
+import model.CommandFormat;
 import model.StudyGroup;
 
 /**
@@ -12,7 +12,7 @@ import model.StudyGroup;
 public class AddMinCommand extends ElementCommand {
     public AddMinCommand(Scanner sc) {
         super(sc);
-        name = CommandName.ADD_MIN.getName();
+        name = CommandFormat.ADD_MIN.getName();
     }
 
     @Override

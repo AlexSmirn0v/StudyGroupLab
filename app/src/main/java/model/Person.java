@@ -1,9 +1,11 @@
 package model;
 
+import java.io.Serializable;
+
 /**
  * Класс, представляющий человека (администратора группы).
  */
-public class Person {
+public class Person implements Serializable {
     private String name; // Поле не может быть null, Строка не может быть пустой
     private int height; // Значение поля должно быть больше 0
     private String passportID; // Поле не может быть null

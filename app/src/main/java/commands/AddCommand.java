@@ -3,7 +3,7 @@ package commands;
 import java.util.HashSet;
 import java.util.Scanner;
 
-import model.CommandName;
+import model.CommandFormat;
 import model.StudyGroup;
 
 /**
@@ -12,7 +12,7 @@ import model.StudyGroup;
 public class AddCommand extends ElementCommand {
     public AddCommand(Scanner sc) {
         super(sc);
-        name = CommandName.ADD.getName();
+        name = CommandFormat.ADD.getName();
     }
 
     @Override

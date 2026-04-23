@@ -11,7 +11,7 @@ import utils.CSVTools;
 /**
  * Класс, представляющий учебную группу с её характеристиками.
  */
-public class StudyGroup implements Comparable<StudyGroup>, Serializable {
+final public class StudyGroup implements Comparable<StudyGroup>, Serializable, Sendable {
     private Long id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого
                      // поля должно быть уникальным, Значение этого поля должно генерироваться
                      // автоматически
@@ -334,6 +334,10 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable {
         if (groupAdmin != null)
             res += GroupParams.GROUP_ADMIN.getName() + ": " + groupAdmin.toString();
         return res;
+    }
+
+    public StudyGroup value() {
+        return this;
     }
 
     public Long getId() {

@@ -21,12 +21,26 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:2.23.1")
+
+    // Log4j JSON-encoding support
+    runtimeOnly("org.apache.logging.log4j:log4j-layout-template-json:2.23.1")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+sourceSets {
+    named("main") {
+        java {
+            exclude("commands/**")
+            exclude("OldMain.java")
+        }
     }
 }
 
@@ -40,11 +54,89 @@ tasks.withType<Javadoc> {
 
 application {
     // Define the main class for the application.
-    mainClass = "Main"
+    mainClass = "client.ClientMain"
 }
 
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = "Main"
+        attributes["Main-Class"] = "client.ClientMain"
     }
+}
+
+tasks.register<Jar>("buildClientJar") {
+    group = "build"
+    description = "Build executable client fat jar"
+    archiveClassifier = "client"
+    dependsOn(tasks.classes)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(sourceSets["main"].output)
+    from({
+        configurations.runtimeClasspath.get().map { file ->
+            if (file.isDirectory) file else zipTree(file)
+        }
+    })
+    exclude(
+        "META-INF/*.SF",
+        "META-INF/*.DSA",
+        "META-INF/*.RSA",
+        "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat"
+    )
+    from({
+        val log4jCoreJar = configurations.runtimeClasspath.get().files.first { file ->
+            file.name.startsWith("log4j-core-")
+        }
+        zipTree(log4jCoreJar).matching {
+            include("META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat")
+        }
+    })
+    manifest {
+        attributes["Main-Class"] = "client.ClientMain"
+    }
+}
+
+tasks.register<Jar>("buildServerJar") {
+    group = "build"
+    description = "Build executable server fat jar"
+    archiveClassifier = "server"
+    dependsOn(tasks.classes)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(sourceSets["main"].output)
+    from({
+        configurations.runtimeClasspath.get().map { file ->
+            if (file.isDirectory) file else zipTree(file)
+        }
+    })
+    exclude(
+        "META-INF/*.SF",
+        "META-INF/*.DSA",
+        "META-INF/*.RSA",
+        "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat"
+    )
+    from({
+        val log4jCoreJar = configurations.runtimeClasspath.get().files.first { file ->
+            file.name.startsWith("log4j-core-")
+        }
+        zipTree(log4jCoreJar).matching {
+            include("META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat")
+        }
+    })
+    manifest {
+        attributes["Main-Class"] = "server.ServerMain"
+    }
+}
+
+tasks.register<JavaExec>("runServer") {
+    group = "application"
+    description = "Run server main class"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "server.ServerMain"
+    standardInput = System.`in`
+}
+
+tasks.register<JavaExec>("runClient") {
+    group = "application"
+    description = "Run client main class"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "client.ClientMain"
+    standardInput = System.`in`
 }

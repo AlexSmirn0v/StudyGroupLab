@@ -1,7 +1,5 @@
 package commands;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +10,7 @@ import model.StudyGroup;
 /**
  * Команда для отображения группы с максимальным семестром.
  */
-public class MaxSemCommand extends Command {
+public class MaxSemCommand extends Command<Void> {
     public MaxSemCommand(Scanner sc) {
         super(sc);
         name = "max_by_semester_enum";
