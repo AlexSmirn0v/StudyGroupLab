@@ -4,26 +4,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 
+import model.CommandFormat;
 import model.StudyGroup;
 
 /**
  * Команда для сортировки коллекции в порядке возрастания.
  */
-public class AscendCommand extends Command {
-    public AscendCommand(Scanner sc) {
-        super(sc);
-        name = "print_ascending";
+public class AscendCommand extends Command<Void, List<StudyGroup>> {
+    public AscendCommand() {
+        super();
+        name = CommandFormat.ASCEND.getName();
     }
 
     @Override
-    public void execute(HashSet<StudyGroup> collection) {
+    public List<StudyGroup> execute(HashSet<StudyGroup> collection, Void empty) {
         List<StudyGroup> sortedList = new ArrayList<>(collection);
         Collections.sort(sortedList);
-        for (StudyGroup group : sortedList) {
-            System.out.println(group.toString());
-            System.out.println();
-        }
+        return sortedList;
     }
 }

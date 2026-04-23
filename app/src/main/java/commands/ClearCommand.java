@@ -1,22 +1,22 @@
 package commands;
 
 import java.util.HashSet;
-import java.util.Scanner;
 
+import model.CommandFormat;
 import model.StudyGroup;
 
 /**
  * Команда для очистки коллекции.
  */
-public class ClearCommand extends Command {
-    public ClearCommand(Scanner sc) {
-        super(sc);
-        name = "clear";
+public class ClearCommand extends Command<Void, String>  {
+    public ClearCommand() {
+        super();
+        name = CommandFormat.CLEAR.getName();
     }
 
     @Override
-    public void execute(HashSet<StudyGroup> collection) {
+    public String execute(HashSet<StudyGroup> collection, Void empty) {
         collection.clear();
-        System.out.println("Коллекция очищена.");
+        return "Коллекция очищена.";
     }
 }

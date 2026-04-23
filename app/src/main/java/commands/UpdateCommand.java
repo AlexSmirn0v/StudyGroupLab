@@ -1,27 +1,26 @@
 package commands;
 
 import java.util.HashSet;
-import java.util.Scanner;
 
 import model.GroupParams;
 import model.StudyGroup;
+import model.UpdateRequest;
 
 /**
  * Команда для обновления элемента коллекции по ID.
  */
-public class UpdateCommand extends Command {
-    public UpdateCommand(Scanner sc) {
-        super(sc);
+public class UpdateCommand extends Command<UpdateRequest, String> {
+    public UpdateCommand() {
+        super();
         name = "update";
     }
 
     @Override
-    public void execute(HashSet<StudyGroup> collection) {
+    public String execute(HashSet<StudyGroup> collection, UpdateRequest upd) {
         StudyGroup groupToUpdate = null;
         while (true) {
             try {
-                String arg = popArgument();
-                Long id = Long.parseLong(arg.isBlank() ? getInput(null) : arg);
+                Long id = upd.id();
                 for (StudyGroup group : collection) {
                     if (group.getId().equals(id)) {
                         groupToUpdate = group;
@@ -31,32 +30,23 @@ public class UpdateCommand extends Command {
                 groupToUpdate.getId(); // Триггер для NullPointerException, если группа не найдена
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("Неверный формат числа");
-                System.out.println(errorMessage);
+                return "Неверный формат числа\n" + errorMessage;
             } catch (NullPointerException e) {
-                System.out.println("Группы с таким id не найдено");
-                System.out.println(errorMessage);
+                return "Группы с таким id не найдено\n" + errorMessage;
             }
         }
 
         while (true) {
             try {
-                String prop = getInput(
-                        "Введите название поля для изменения (" + String.join(", ", GroupParams.getStringItems()) + "): ");
-                GroupParams param = GroupParams.getByName(prop);
-                String[] inputAsks = param.getInputAsks();
-                String[] val = new String[inputAsks.length];
-                for (int i = 0; i < inputAsks.length; i++) {
-                    val[i] = getInput("Введите " + inputAsks[i] + ": ");
-                }
-                groupToUpdate.edit(param, String.join(StudyGroup.DELIMITER, val));
+                GroupParams param = upd.parameter();
+                String value = upd.value();
+                groupToUpdate.edit(param, value);
                 break;
             } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-                System.out.println(errorMessage);
+                return e.getMessage() + "\n" + errorMessage;
             }
         }
-        System.out.println("Свойство поля успешно обновлено");
+        return "Свойство поля успешно обновлено";
 
     }
 }

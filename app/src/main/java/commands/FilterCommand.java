@@ -1,28 +1,26 @@
 package commands;
 
+import java.util.List;
+import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Scanner;
 
+import model.CommandFormat;
 import model.StudyGroup;
 
 /**
  * Команда для фильтрации элементов коллекции по имени.
  */
-public class FilterCommand extends Command {
-    public FilterCommand(Scanner sc) {
-        super(sc);
-        name = "filter_contains_name";
+public class FilterCommand extends Command<String, List<StudyGroup>> {
+    public FilterCommand() {
+        super();
+        name = CommandFormat.FILTER.getName();
     }
 
     @Override
-    public void execute(HashSet<StudyGroup> collection) {
-        String name = popArgument();
-        HashSet<StudyGroup> res = new HashSet<>(
-                collection.stream().filter((StudyGroup group) -> group.getName().contains(name)).toList());
-        for (StudyGroup group : res) {
-            System.out.println(group.toString());
-            System.out.println();
-        }
+    public List<StudyGroup> execute(HashSet<StudyGroup> collection, String name) {
+        List<StudyGroup> res = collection.stream().filter((StudyGroup group) -> group.getName().contains(name))
+                .sorted(Comparator.comparingLong(StudyGroup::getSerializedSize)).toList();
+        return res;
     }
 
 }

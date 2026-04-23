@@ -1,26 +1,28 @@
 package commands;
 
 import java.util.HashSet;
-import java.util.Scanner;
+import java.util.Optional;
 
+import model.CommandFormat;
 import model.StudyGroup;
 
 /**
  * Команда для удаления групп, меньших заданной.
  */
-public class RemoveLowerCommand extends ElementCommand {
-    public RemoveLowerCommand(Scanner sc) {
-        super(sc);
-        name = "remove_lower";
+public class RemoveLowerCommand extends Command<StudyGroup, String> {
+    public RemoveLowerCommand() {
+        super();
+        name = CommandFormat.REMOVE_LOW.getName();
     }
 
     @Override
-    public void execute(HashSet<StudyGroup> collection) {
-        StudyGroup group = askGroup();
-
-        collection.stream().filter((StudyGroup gr) -> gr.compareTo(group) < 0).forEach(gr -> {
+    public String execute(HashSet<StudyGroup> collection, StudyGroup group) {
+        Optional<StudyGroup> firstGroup = collection.stream().filter((StudyGroup gr) -> gr.compareTo(group) < 0).findFirst();
+        if (firstGroup.isPresent()) {
+            StudyGroup gr = firstGroup.get();
             collection.remove(gr);
-            System.out.println("Группа " + gr.getName() + " была удалена из коллекции");
-        });
+            return "Группа " + gr.getName() + " была удалена из коллекции\n";
+        }
+        return "Группа не найдена";
     }
 }

@@ -1,35 +1,33 @@
 package commands;
 
 import java.util.HashSet;
-import java.util.Scanner;
 
+import model.CommandFormat;
 import model.StudyGroup;
 
 /**
  * Команда для удаления группы по ID.
  */
-public class RemoveCommand extends Command {
-    public RemoveCommand(Scanner sc) {
-        super(sc);
-        name = "remove_by_id";
+public class RemoveCommand extends Command<Long, String> {
+    public RemoveCommand() {
+        super();
+        name = CommandFormat.REMOVE.getName();
     }
 
     @Override
-    public void execute(HashSet<StudyGroup> collection) {
+    public String execute(HashSet<StudyGroup> collection, Long id) {
         try {
-            String arg = popArgument();
-            Long id = Long.parseLong(arg);
             for (StudyGroup group : collection) {
                 if (group.getId().equals(id)) {
                     collection.remove(group);
-                    System.out.println("Группа успешно удалена");
-                    return;
+                    return "Группа успешно удалена";
                 }
             }
+            return "Группы с таким id не найдено";
         } catch (NumberFormatException e) {
-            System.out.println("Неверный формат числа");
+            return "Неверный формат числа";
         } catch (NullPointerException e) {
-            System.out.println("Группы с таким id не найдено");
+            return "Группы с таким id не найдено";
         }
     }
 

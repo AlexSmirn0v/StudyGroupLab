@@ -1,7 +1,6 @@
 package commands;
 
 import java.util.HashSet;
-import java.util.Scanner;
 
 import model.CommandFormat;
 import model.StudyGroup;
@@ -9,16 +8,15 @@ import model.StudyGroup;
 /**
  * Команда для добавления новой учебной группы в коллекцию.
  */
-public class AddCommand extends ElementCommand {
-    public AddCommand(Scanner sc) {
-        super(sc);
+public class AddCommand extends Command<StudyGroup, String> {
+    public AddCommand() {
+        super();
         name = CommandFormat.ADD.getName();
     }
 
     @Override
-    public void execute(HashSet<StudyGroup> collection) {
-        StudyGroup group = askGroup();
+    public String execute(HashSet<StudyGroup> collection, StudyGroup group) {
         collection.add(group);
-        System.out.println("Группа успешно добавлена в коллекцию");
+        return "Группа успешно добавлена в коллекцию";
     }
 }
