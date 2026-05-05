@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class ServerMain {
     private static final int PORT = 5000;
     private static final long SELECT_TIMEOUT_MS = 200;
+    private static ServerHandler handler = new ServerHandler();
 
     // Массив из одного элемента статуса для расширяемости и передачи элемента в качестве ссылки
     private static boolean[] status = new boolean[]{true};
