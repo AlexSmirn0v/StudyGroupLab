@@ -115,19 +115,3 @@ tasks.register<Jar>("buildServerJar") {
         attributes["Main-Class"] = "server.ServerMain"
     }
 }
-
-tasks.register<JavaExec>("runServer") {
-    group = "application"
-    description = "Run server main class"
-    classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "server.ServerMain"
-    standardInput = System.`in`
-}
-
-tasks.register<JavaExec>("runClient") {
-    group = "application"
-    description = "Run client main class"
-    classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "client.ClientMain"
-    standardInput = System.`in`
-}

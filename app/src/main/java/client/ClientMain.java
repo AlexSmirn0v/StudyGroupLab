@@ -12,11 +12,21 @@ import java.util.Scanner;
 import model.CommandMessage;
 import model.CommandFormat;
 
+/**
+ * Главный класс клиента.
+ */
 final public class ClientMain {
     static Deque<String> scriptHistory = new ArrayDeque<>();
     static boolean keepRunning = true;
     static boolean insideFile = false;
 
+    /**
+     * Основной цикл обработки команд.
+     * @param scan сканер для чтения ввода
+     * @param maker составитель запросов
+     * @param connector соединение с сервером
+     * @param consoleCharset кодировка консоли
+     */
     private static void runLoop(Scanner scan, PayloadMaker maker, TCPConnector connector, Charset consoleCharset) {
        while (keepRunning) {
             System.out.print("> ");

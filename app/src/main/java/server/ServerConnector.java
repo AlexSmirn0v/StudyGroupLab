@@ -11,6 +11,9 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
 
+/**
+ * Менеджер обработки сетевых соединений сервера.
+ */
 public class ServerConnector {
     private static final int LENGTH_BYTES = Integer.BYTES;
     private static final int MAX_MESSAGE_BYTES = 16 * 1024 * 1024;
@@ -20,6 +23,12 @@ public class ServerConnector {
     private final ServerSocketChannel serverChannel;
     private final Queue<IncomingRequest> payloadQueue = new ArrayDeque<>();
 
+    /**
+     * Запускает сервер на указанном порте.
+     * 
+     * @param port порт сервера
+     * @throws IOException если не удается открыть канал
+     */
     ServerConnector(int port) throws IOException {
         this.port = port;
         this.selector = Selector.open();
@@ -30,15 +39,31 @@ public class ServerConnector {
         serverChannel.register(selector, SelectionKey.OP_ACCEPT);
     }
 
+    /**
+     * Внутренний класс для хранения состояния клиента с буфером для чтения и
+     * очередью для записи.
+     */
     static class ClientState {
         final ByteBuffer lengthBuffer = ByteBuffer.allocate(LENGTH_BYTES);
         ByteBuffer dataBuffer;
         final Queue<ByteBuffer> pendingWrites = new ArrayDeque<>();
     }
 
+    /**
+     * Запись для входящего запроса.
+     * 
+     * @param client  клиентский канал
+     * @param payload информация запроса в виде массива байтов
+     */
     public record IncomingRequest(SocketChannel client, byte[] payload) {
     }
 
+    /**
+     * Обрабатывает сетевые события.
+     * 
+     * @param timeoutMs таймаут в миллисекундах
+     * @throws IOException при ошибке ввода-вывода
+     */
     public void pump(long timeoutMs) throws IOException {
         if (timeoutMs <= 0) {
             selector.selectNow();
@@ -73,10 +98,22 @@ public class ServerConnector {
         }
     }
 
+    /**
+     * Извлекает следующий входящий запрос.
+     * 
+     * @return входящий запрос или null
+     */
     public IncomingRequest pollRequest() {
         return payloadQueue.poll();
     }
 
+    /**
+     * Ставит ответ в очередь для отправки клиенту.
+     * 
+     * @param client  клиентский канал
+     * @param payload информация ответа в виде массива байтов
+     * @throws IOException при ошибке ввода-вывода
+     */
     public void queueResponse(SocketChannel client, byte[] payload) throws IOException {
         if (payload == null || payload.length == 0) {
             throw new IllegalArgumentException("Ответ не может быть пустым");
@@ -104,6 +141,11 @@ public class ServerConnector {
         key.interestOps(key.interestOps() | SelectionKey.OP_WRITE | SelectionKey.OP_READ);
     }
 
+    /**
+     * Принимает новое клиентское соединение.
+     * 
+     * @throws IOException при ошибке ввода-вывода
+     */
     private void accept() throws IOException {
         SocketChannel client = serverChannel.accept();
         if (client == null) {
@@ -115,6 +157,13 @@ public class ServerConnector {
         ServerLogger.log("Подключился клиент: " + client.getRemoteAddress());
     }
 
+    /**
+     * Читает данные от клиента.
+     * 
+     * @param key ключ селектора
+     * @throws IOException            при ошибке ввода-вывода
+     * @throws ClassNotFoundException при ошибке десериализации
+     */
     private void read(SelectionKey key) throws IOException, ClassNotFoundException {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientState state = (ClientState) key.attachment();
@@ -161,6 +210,12 @@ public class ServerConnector {
         ServerLogger.log("Получен набор байтов: " + payload);
     }
 
+    /**
+     * Записывает данные клиенту.
+     * 
+     * @param key ключ селектора
+     * @throws IOException при ошибке ввода-вывода
+     */
     private void write(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientState state = (ClientState) key.attachment();
@@ -180,6 +235,12 @@ public class ServerConnector {
         key.interestOps(SelectionKey.OP_READ);
     }
 
+    /**
+     * Закрывает соединение с клиентом.
+     * 
+     * @param key    ключ селектора
+     * @param reason причина закрытия
+     */
     private void closeClient(SelectionKey key, String reason) {
         try {
             SocketChannel channel = (SocketChannel) key.channel();

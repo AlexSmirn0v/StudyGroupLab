@@ -10,13 +10,22 @@ import model.GroupParams;
 import model.StudyGroup;
 import model.UpdateRequest;
 
+/**
+ * Класс для формирования запросов к серверу.
+ */
 final public class PayloadMaker {
     Scanner scan;
     final static String errorMessage = "Неверный ввод. Пожалуйста, повторите попытку";
 
+    /**
+     * Конструктор для составителя запросов.
+     * 
+     * @param scan сканер для чтения ввода
+     */
     PayloadMaker(Scanner scan) {
         this.scan = scan;
     }
+
     /**
      * Получает ввод от пользователя.
      * 
@@ -44,8 +53,16 @@ final public class PayloadMaker {
         }
     }
 
+    /**
+     * Запрашивает у пользователя данные для обновления элемента коллекции.
+     * 
+     * @param arg
+     * @return объект UpdateRequest с данными для обновления элемента
+     */
     public UpdateRequest askUpdate(String arg) {
-        Long id; GroupParams param; String values;
+        Long id;
+        GroupParams param;
+        String values;
         while (true) {
             try {
                 id = Long.parseLong(arg.isBlank() ? getInput(null) : arg);
@@ -59,7 +76,8 @@ final public class PayloadMaker {
         while (true) {
             try {
                 String prop = getInput(
-                        "Введите название поля для изменения (" + String.join(", ", GroupParams.getStringItems()) + "): ");
+                        "Введите название поля для изменения (" + String.join(", ", GroupParams.getStringItems())
+                                + "): ");
                 param = GroupParams.getByName(prop);
                 String[] inputAsks = param.getInputAsks();
                 String[] val = new String[inputAsks.length];
@@ -76,6 +94,11 @@ final public class PayloadMaker {
         return new UpdateRequest(id, param, values);
     }
 
+    /**
+     * Запрашивает у пользователя данные для создания нового элемента коллекции.
+     * 
+     * @return объект StudyGroup с данными нового элемента
+     */
     public StudyGroup askGroup() {
         GroupBuilder builder = new GroupBuilder();
         askUntilValid(makeDesc(GroupParams.NAME.getInputAsks()), builder::setName);
