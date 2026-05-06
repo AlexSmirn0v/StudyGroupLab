@@ -15,6 +15,9 @@ import model.GroupBuilder;
 import model.StudyGroup;
 import commands.*;
 
+/**
+ * Обработчик команд сервера.
+ */
 public class ServerHandler {
     static final String ENV_VAR = "GROUPS_FILE";
     static final String CSV_DELIMITER = ";";
@@ -37,6 +40,10 @@ public class ServerHandler {
         commandsMap = listCommands();
     }
 
+    /**
+     * Загружает коллекцию из файла.
+     * @return коллекция учебных групп
+     */
     private static HashSet<StudyGroup> loadCollection() {
         HashSet<StudyGroup> collection = new HashSet<>();
         String filename = System.getenv(ENV_VAR);
@@ -58,6 +65,10 @@ public class ServerHandler {
         return collection;
     }
 
+    /**
+     * Создает список команд.
+     * @return список команд
+     */
     public static HashMap<String, Command<?, ?>> listCommands() {
         HashMap<String, Command<?, ?>> commHashMap = new HashMap<>();
         Command<?, ?>[] comms = {
@@ -81,6 +92,11 @@ public class ServerHandler {
         return commHashMap;
     }
 
+    /**
+     * Выполняет команду.
+     * @param request запрос команды
+     * @return результат выполнения
+     */
     Object run(CommandMessage request) {
         CommandFormat commandForm = request.command();
         Command<?, ?> command = commandsMap.get(commandForm.getName());
@@ -95,6 +111,12 @@ public class ServerHandler {
         return executeCommand(command, request.getPayload());
     }
 
+    /**
+     * Обрабатывает консольный ввод.
+     * @param consoleInput ввод с консоли
+     * @param status статус сервера (на позиции [0] прерыватель цикла)
+     * @return результат обработки
+     */
     String runConsole(String consoleInput, boolean[] status) {
         String commandName = consoleInput.trim();
         if (commandName.isEmpty())
@@ -113,6 +135,12 @@ public class ServerHandler {
         }
     }
 
+    /**
+     * Выполняет команду.
+     * @param command команда
+     * @param payload входные данные для команды
+     * @return результат
+     */
     @SuppressWarnings("unchecked")
     private Object executeCommand(Command<?, ?> command, Object payload) {
         return ((Command<Object, Object>) command).execute(groupSet, payload);

@@ -11,6 +11,9 @@ import java.nio.channels.SocketChannel;
 
 import model.CommandMessage;
 
+/**
+ * Клиентское соединение по TCP для коммуникации с сервером.
+ */
 public class TCPConnector implements AutoCloseable{
     private SocketChannel channel;
     private static final int MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
@@ -18,11 +21,21 @@ public class TCPConnector implements AutoCloseable{
     private static final int RECONNECT_DELAY_MS = 2000;
     private final InetSocketAddress serverAddress;
 
+    /**
+     * Конструктор для подключения к серверу.
+     * @param port порт сервера
+     * @throws IOException при ошибке подключения
+     */
     TCPConnector(int port) throws IOException{
         this.serverAddress = new InetSocketAddress("localhost", port);
         reconnect();
     }
 
+    /**
+     * Отправляет сообщение на сервер.
+     * @param mess сообщение для отправки в виде объекта CommandMessage
+     * @throws IOException при ошибке отправки
+     */
     public void sendMessage(CommandMessage mess) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos);
@@ -50,6 +63,12 @@ public class TCPConnector implements AutoCloseable{
         }
     }
 
+    /**
+     * Обрабатывает и десериализует ответ от сервера.
+     * @return ответ сервера
+     * @throws IOException при ошибке чтения
+     * @throws ClassNotFoundException если класс ответа не найден
+     */
     public Object readResponse() throws IOException, ClassNotFoundException {
         ByteBuffer lengthBuffer = ByteBuffer.allocate(Integer.BYTES);
         readFully(lengthBuffer);
@@ -86,6 +105,10 @@ public class TCPConnector implements AutoCloseable{
         }
     }
 
+    /**
+     * Пытается переподключиться к серверу с 5 попытками.
+     * @throws IOException если все попытки к переподключению неудачны
+     */
     private void reconnect() throws IOException {
         try {
             close();

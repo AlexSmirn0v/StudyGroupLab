@@ -15,6 +15,8 @@ public abstract class Command<In extends Object, Out extends Object> implements 
     /**
      * Выполняет команду.
      * @param collection коллекция учебных групп
+     * @param payload данные для выполнения команды
+     * @return результат выполнения команды
      */
     abstract public Out execute(HashSet<StudyGroup> collection, In payload);
 }

@@ -34,14 +34,31 @@ public enum GroupParams implements NamedEnum {
         return this.name;
     }
 
+    /**
+     * Возвращает список необходимых полей для ввода значения.
+     *
+     * @return массив строк с описаниями полей ввода
+     */
     public String[] getInputAsks() {
         return this.inputAsks;
     }
 
+    /**
+     * Получает элемент перечисления по его имени.
+     *
+     * @param name отображаемое имя параметра
+     * @return элемент перечисления
+     * @throws IllegalArgumentException если имя неверное
+     */
     public static GroupParams getByName(String name) throws IllegalArgumentException {
         return NamedEnum.getByName(GroupParams.class, name);
     }
 
+    /**
+     * Возвращает строку всех доступных имен параметров.
+     *
+     * @return строка с перечислением имен параметров
+     */
     public static String getStringItems() {
         return NamedEnum.getStringItems(GroupParams.class);
     }

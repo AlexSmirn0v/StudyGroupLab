@@ -4,7 +4,14 @@ import java.util.Collection;
 
 import model.StudyGroup;
 
+/**
+ * Класс для вывода ответов сервера.
+ */
 public final class ResponsePrinter {
+    /**
+     * Выводит в консоль клиента ответ в оптимальном форматировании.
+     * @param response ответ для вывода
+     */
     public static void print(Object response) {
         if (response == null) {
             System.out.println("Сервер вернул пустой ответ.");
