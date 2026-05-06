@@ -1,6 +1,6 @@
 package commands;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Optional;
 
 import model.CommandFormat;
@@ -16,7 +16,7 @@ public class RemoveLowerCommand extends Command<StudyGroup, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, StudyGroup group) {
+    public String execute(Collection<StudyGroup> collection, StudyGroup group) {
         Optional<StudyGroup> firstGroup = collection.stream().filter((StudyGroup gr) -> gr.compareTo(group) < 0).findFirst();
         if (firstGroup.isPresent()) {
             StudyGroup gr = firstGroup.get();

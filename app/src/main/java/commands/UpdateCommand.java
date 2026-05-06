@@ -1,6 +1,6 @@
 package commands;
 
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.GroupParams;
 import model.StudyGroup;
@@ -16,7 +16,7 @@ public class UpdateCommand extends Command<UpdateRequest, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, UpdateRequest upd) {
+    public String execute(Collection<StudyGroup> collection, UpdateRequest upd) {
         StudyGroup groupToUpdate = null;
         while (true) {
             try {

@@ -73,4 +73,8 @@ public class GroupBuilder {
         group.setCreationDate(java.time.LocalDateTime.now());
         return group;
     }
+
+    public StudyGroup buildLoaded() {
+        return group;
+    }
 }

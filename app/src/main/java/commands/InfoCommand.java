@@ -1,7 +1,7 @@
 package commands;
 
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Objects;
 import java.time.LocalDateTime;
 
@@ -18,7 +18,7 @@ public class InfoCommand extends Command<Void, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, Void empty) {
+    public String execute(Collection<StudyGroup> collection, Void empty) {
         System.out.println("Количество элементов: " + collection.size());
 
         long sumParticipants = collection.stream()

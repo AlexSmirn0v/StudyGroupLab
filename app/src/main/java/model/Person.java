@@ -34,19 +34,19 @@ public class Person implements Serializable {
         this.hairColor = hairColor;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
-    int getHeight() {
+    public int getHeight() {
         return height;
     }
 
-    String getPassportID() {
+    public String getPassportID() {
         return passportID;
     }
 
-    Color getHairColor() {
+    public Color getHairColor() {
         return hairColor;
     }
 

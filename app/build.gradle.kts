@@ -22,6 +22,7 @@ dependencies {
     // This dependency is used by the application.
     implementation(libs.guava)
     implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    implementation("org.postgresql:postgresql:latest.release")
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.23.1")
 
     // Log4j JSON-encoding support

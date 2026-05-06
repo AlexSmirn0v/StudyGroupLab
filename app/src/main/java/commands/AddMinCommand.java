@@ -1,6 +1,6 @@
 package commands;
 
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.CommandFormat;
 import model.StudyGroup;
@@ -14,7 +14,7 @@ public class AddMinCommand extends Command<StudyGroup, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, StudyGroup group) {
+    public String execute(Collection<StudyGroup> collection, StudyGroup group) {
         boolean shouldAdd = collection.stream().allMatch(x -> group.compareTo(x) < 0);
         if (shouldAdd) {
             collection.add(group);

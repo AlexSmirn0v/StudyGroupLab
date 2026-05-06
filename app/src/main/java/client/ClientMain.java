@@ -4,10 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Scanner;
 
 import model.CommandMessage;
 import model.CommandFormat;
@@ -19,22 +17,24 @@ final public class ClientMain {
     static Deque<String> scriptHistory = new ArrayDeque<>();
     static boolean keepRunning = true;
     static boolean insideFile = false;
+    static LoginManager loginManager = new LoginManager();
+    static IOHandler ioHandler = new IOHandler();
 
     /**
      * Основной цикл обработки команд.
-     * @param scan сканер для чтения ввода
+     * @param ioHandler сканер для чтения ввода
      * @param maker составитель запросов
      * @param connector соединение с сервером
      * @param consoleCharset кодировка консоли
      */
-    private static void runLoop(Scanner scan, PayloadMaker maker, TCPConnector connector, Charset consoleCharset) {
+    private static void runLoop(PayloadMaker maker, TCPConnector connector) {
        while (keepRunning) {
-            System.out.print("> ");
+            ioHandler.print("> ");
 
-            if (!scan.hasNextLine())
+            if (!ioHandler.hasNextLine())
                 break;
-
-            String line = scan.nextLine().trim();
+            
+            String line = ioHandler.readLine().trim();
             if (line.isEmpty())
                 continue;
             String[] parts = line.split("\\s+", 2);
@@ -42,22 +42,24 @@ final public class ClientMain {
             try {
                 command = CommandFormat.getByName(parts[0]);
             } catch (IllegalArgumentException e) {
-                System.out.println("Команда не распознана. Введите 'help' для получения списка доступных команд.");
+                ioHandler.println("Команда не распознана. Введите 'help' для получения списка доступных команд.");
                 continue;
             }
+            String username = loginManager.getUsername();
+            String password = loginManager.getPassword();
             String argument = (parts.length > 1) ? parts[1].trim() : "";
             CommandMessage message = null;
 
             switch (command) {
                 case EXIT:
                     if (insideFile) {
-                        scan = new Scanner(System.in, consoleCharset);
+                        ioHandler.changeSource(System.in);
                         insideFile = false;
                         scriptHistory.clear();
-                        System.out.println("Завершение выполнения скрипта. Возвращение к консольному режиму.");
+                        ioHandler.println("Завершение выполнения скрипта. Возвращение к консольному режиму.");
                     } else {
                         keepRunning = false;
-                        System.out.println("Завершение выполнения программы");
+                        ioHandler.println("Завершение выполнения программы");
                     }
                     break;
                 case EXECUTE:
@@ -65,34 +67,34 @@ final public class ClientMain {
                         java.io.File f = new java.io.File(argument);
                         String scriptPath = f.getCanonicalPath();
                         if (scriptHistory.contains(scriptPath)) {
-                            System.out.println("Обнаружена рекурсия при выполнении скрипта: " + argument);
+                            ioHandler.println("Обнаружена рекурсия при выполнении скрипта: " + argument);
                             break;
                         }
                         scriptHistory.add(scriptPath);
-                        scan = new Scanner(new BufferedInputStream(new FileInputStream(scriptPath)), consoleCharset);
+                        ioHandler.changeSource(new BufferedInputStream(new FileInputStream(scriptPath)));
                         insideFile = true;
                     } catch (FileNotFoundException e) {
-                        System.out.println("Файл не найден или не может быть открыт: " + argument);
+                        ioHandler.println("Файл не найден или не может быть открыт: " + argument);
                     } catch (java.io.IOException e) {
-                        System.out.println("Ошибка при открытии скрипта: " + e.getMessage());
+                        ioHandler.println("Ошибка при открытии скрипта: " + e.getMessage());
                     }
                     break;
                 case ADD:
                 case ADD_MIN:
                 case REMOVE_LOW:
-                    message = new CommandMessage(command, maker.askGroup());
+                    message = new CommandMessage(command, maker.askGroup(), username, password);
                     break;
                 case UPDATE:
-                    message = new CommandMessage(command, maker.askUpdate(argument));
+                    message = new CommandMessage(command, maker.askUpdate(argument), username, password);
                     break;
                 case REMOVE:
-                    message = new CommandMessage(command, Long.valueOf(argument));
+                    message = new CommandMessage(command, Long.valueOf(argument), username, password);
                     break;
                 case FILTER:
-                    message = new CommandMessage(command, argument);
+                    message = new CommandMessage(command, argument, username, password);
                     break;
                 default:
-                    message = new CommandMessage(command);
+                    message = new CommandMessage(command, username, password);
             }
 
             if (message == null)
@@ -100,29 +102,25 @@ final public class ClientMain {
             try {
                 connector.sendMessage(message);
                 Object response = connector.readResponse();
-                ResponsePrinter.print(response);
+                ioHandler.println(response);
             } catch (IOException e) {
-                System.out.println(e.getClass().getSimpleName() + e.getMessage());
-                System.out.println("Отсутствует подключение к серверу");
+                ioHandler.println(e.getClass().getSimpleName() + e.getMessage());
+                ioHandler.println("Отсутствует подключение к серверу");
             } catch (ClassNotFoundException e) {
-                System.out.println("Не удалось прочитать ответ сервера: " + e.getMessage());
+                ioHandler.println("Не удалось прочитать ответ сервера: " + e.getMessage());
             }
         }
     }
 
     public static void main(String[] args) {
-        Charset consoleCharset = (System.console() != null)
-                ? System.console().charset()
-                : Charset.defaultCharset();
+        PayloadMaker maker = new PayloadMaker(ioHandler);
 
-        Scanner scan = new Scanner(System.in, consoleCharset);
-        PayloadMaker maker = new PayloadMaker(scan);
-
-        try (TCPConnector connector = new TCPConnector(5000)) {
-            System.out.println("Добро пожаловать! Введите 'help' для получения списка доступных команд.");
-            runLoop(scan, maker, connector, consoleCharset);
+        try (TCPConnector connector = new TCPConnector(4000)) {
+            ioHandler.println("Добро пожаловать! Введите 'help' для получения списка доступных команд.");
+            loginManager.askCredentials(ioHandler);
+            runLoop(maker, connector);
         } catch (IOException e) {
-            System.out.println("Не удалось подключиться к серверу");
+            ioHandler.println("Не удалось подключиться к серверу");
         }
 
     }

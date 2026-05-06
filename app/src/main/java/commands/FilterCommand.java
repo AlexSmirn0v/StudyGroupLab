@@ -2,7 +2,7 @@ package commands;
 
 import java.util.List;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.CommandFormat;
 import model.StudyGroup;
@@ -17,7 +17,7 @@ public class FilterCommand extends Command<String, List<StudyGroup>> {
     }
 
     @Override
-    public List<StudyGroup> execute(HashSet<StudyGroup> collection, String name) {
+    public List<StudyGroup> execute(Collection<StudyGroup> collection, String name) {
         List<StudyGroup> res = collection.stream().filter((StudyGroup group) -> group.getName().contains(name))
                 .sorted(Comparator.comparingLong(StudyGroup::getSerializedSize)).toList();
         return res;

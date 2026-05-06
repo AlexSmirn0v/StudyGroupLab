@@ -1,7 +1,7 @@
 package commands;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.StudyGroup;
 
@@ -18,5 +18,5 @@ public abstract class Command<In extends Object, Out extends Object> implements 
      * @param payload данные для выполнения команды
      * @return результат выполнения команды
      */
-    abstract public Out execute(HashSet<StudyGroup> collection, In payload);
+    abstract public Out execute(Collection<StudyGroup> collection, In payload);
 }

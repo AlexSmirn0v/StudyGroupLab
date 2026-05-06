@@ -1,7 +1,7 @@
 package commands;
 
 import java.util.Deque;
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.CommandFormat;
 import model.StudyGroup;
@@ -16,7 +16,7 @@ public class HistoryCommand extends Command<Deque<String>, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, Deque<String> history) {
+    public String execute(Collection<StudyGroup> collection, Deque<String> history) {
         String res = "Последние " + history.size() + " команд";
         switch (history.size()) {
             case 1:

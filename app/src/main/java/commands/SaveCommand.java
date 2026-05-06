@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.StudyGroup;
 
@@ -19,7 +19,7 @@ public class SaveCommand extends Command<String, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, String filename) {
+    public String execute(Collection<StudyGroup> collection, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, StandardCharsets.UTF_8))) {
             for (StudyGroup group : collection) {
                 writer.write(group.toCSVString(";"));

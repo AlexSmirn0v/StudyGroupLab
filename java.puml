@@ -273,7 +273,7 @@ class ServerLogger {
 }
 
 class ServerMain {
-  -{static} PORT: int = 5000
+  -{static} PORT: int = 4000
   -{static} SELECT_TIMEOUT_MS: long = 200
   -{static} handler: ServerHandler = new ServerHandler()
   -{static} status: boolean = new boolean[] { true }

@@ -2,7 +2,6 @@ package client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.function.Consumer;
 
 import model.GroupBuilder;
@@ -14,16 +13,16 @@ import model.UpdateRequest;
  * Класс для формирования запросов к серверу.
  */
 final public class PayloadMaker {
-    Scanner scan;
+    IOHandler ioHandler;
     final static String errorMessage = "Неверный ввод. Пожалуйста, повторите попытку";
 
     /**
      * Конструктор для составителя запросов.
      * 
-     * @param scan сканер для чтения ввода
+     * @param ioHandler сканер для чтения ввода
      */
-    PayloadMaker(Scanner scan) {
-        this.scan = scan;
+    PayloadMaker(IOHandler ioHandler) {
+        this.ioHandler = ioHandler;
     }
 
     /**
@@ -34,8 +33,8 @@ final public class PayloadMaker {
      */
     public String getInput(String description) {
         if (description != null && !description.isBlank())
-            System.out.println(description);
-        String res = scan.nextLine().trim();
+            ioHandler.println(description);
+        String res = ioHandler.readLine().trim();
         return res;
     }
 
@@ -47,8 +46,8 @@ final public class PayloadMaker {
                 setter.accept(String.join(delimiter, inputs));
                 return;
             } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-                System.out.println(errorMessage);
+                ioHandler.println(e.getMessage());
+                ioHandler.println(errorMessage);
             }
         }
     }
@@ -68,8 +67,8 @@ final public class PayloadMaker {
                 id = Long.parseLong(arg.isBlank() ? getInput(null) : arg);
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("Неверный формат числа");
-                System.out.println(errorMessage);
+                ioHandler.println("Неверный формат числа");
+                ioHandler.println(errorMessage);
             }
         }
 
@@ -87,8 +86,8 @@ final public class PayloadMaker {
                 values = String.join(StudyGroup.DELIMITER, val);
                 break;
             } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-                System.out.println(errorMessage);
+                ioHandler.println(e.getMessage());
+                ioHandler.println(errorMessage);
             }
         }
         return new UpdateRequest(id, param, values);

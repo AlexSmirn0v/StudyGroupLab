@@ -1,18 +1,16 @@
 package server;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Scanner;
 
 import model.CommandFormat;
 import model.CommandMessage;
-import model.GroupBuilder;
 import model.StudyGroup;
+import server.db.DBCollection;
+import server.db.DBConnector;
 import commands.*;
 
 /**
@@ -23,7 +21,8 @@ public class ServerHandler {
     static final String CSV_DELIMITER = ";";
 
     static HashMap<String, Command<?, ?>> commandsMap = new HashMap<>();
-    static HashSet<StudyGroup> groupSet;
+    static DBCollection groupSet;
+    static DBConnector dbConnect;
     static Deque<String> history = new ArrayDeque<>() {
         private final int maxSize = 5;
 
@@ -36,6 +35,7 @@ public class ServerHandler {
     };
 
     public ServerHandler() {
+        dbConnect = new DBConnector();
         groupSet = loadCollection();
         commandsMap = listCommands();
     }
@@ -44,29 +44,19 @@ public class ServerHandler {
      * Загружает коллекцию из файла.
      * @return коллекция учебных групп
      */
-    private static HashSet<StudyGroup> loadCollection() {
-        HashSet<StudyGroup> collection = new HashSet<>();
-        String filename = System.getenv(ENV_VAR);
-        try (Scanner fileScanner = new Scanner(new BufferedInputStream(new FileInputStream(filename)))) {
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine().trim();
-                if (!line.isEmpty()) {
-                    try {
-                        StudyGroup group = new GroupBuilder().fromCSVString(line, CSV_DELIMITER).build();
-                        collection.add(group);
-                    } catch (IllegalArgumentException e) {
-                        ServerLogger.log("Ошибка при загрузке строки: " + e.getMessage());
-                    }
-                }
-            }
-        } catch (FileNotFoundException | NullPointerException e) {
-            ServerLogger.log("Файл не найден или не может быть открыт: " + filename);
+    private static DBCollection loadCollection() {
+        DBCollection res = new DBCollection();
+        try {
+            res = dbConnect.loadStudyGroups();
+        } catch (SQLException e) {
+            ServerLogger.log("Не удалось подключиться к базе данных: " + e.getMessage());
         }
-        return collection;
+        return res;
     }
 
     /**
      * Создает список команд.
+     * 
      * @return список команд
      */
     public static HashMap<String, Command<?, ?>> listCommands() {
@@ -94,6 +84,7 @@ public class ServerHandler {
 
     /**
      * Выполняет команду.
+     * 
      * @param request запрос команды
      * @return результат выполнения
      */
@@ -113,8 +104,9 @@ public class ServerHandler {
 
     /**
      * Обрабатывает консольный ввод.
+     * 
      * @param consoleInput ввод с консоли
-     * @param status статус сервера (на позиции [0] прерыватель цикла)
+     * @param status       статус сервера (на позиции [0] прерыватель цикла)
      * @return результат обработки
      */
     String runConsole(String consoleInput, boolean[] status) {
@@ -137,6 +129,7 @@ public class ServerHandler {
 
     /**
      * Выполняет команду.
+     * 
      * @param command команда
      * @param payload входные данные для команды
      * @return результат

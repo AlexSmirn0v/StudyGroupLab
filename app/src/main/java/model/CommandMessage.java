@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @param command тип команды
  * @param payload дополнительная информация для выполнения команды
  */
-public record CommandMessage(CommandFormat command, Sendable payload) implements Serializable {
+public record CommandMessage(CommandFormat command, Sendable payload, String username, String password) implements Serializable {
 
     /**
      * Интерфейс-обертка для простых значений, пересылаемых как часть сообщения.
@@ -76,8 +76,8 @@ public record CommandMessage(CommandFormat command, Sendable payload) implements
      *
      * @param command команда
      */
-    public CommandMessage(CommandFormat command) {
-        this(command, (Sendable) null);
+    public CommandMessage(CommandFormat command, String username, String password) {
+        this(command, (Sendable) null, username, password);
     }
 
     /**
@@ -86,8 +86,8 @@ public record CommandMessage(CommandFormat command, Sendable payload) implements
      * @param command команда
      * @param payload целочисленное значение
      */
-    public CommandMessage(CommandFormat command, Long payload) {
-        this(command, new LongWrap(payload));
+    public CommandMessage(CommandFormat command, Long payload, String username, String password) {
+        this(command, new LongWrap(payload), username, password);
     }
 
     /**
@@ -96,8 +96,8 @@ public record CommandMessage(CommandFormat command, Sendable payload) implements
      * @param command команда
      * @param payload строковое значение
      */
-    public CommandMessage(CommandFormat command, String payload) {
-        this(command, new StringWrap(payload));
+    public CommandMessage(CommandFormat command, String payload, String username, String password) {
+        this(command, new StringWrap(payload), username, password);
     }
 
     /**

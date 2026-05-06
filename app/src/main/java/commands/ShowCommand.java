@@ -1,7 +1,7 @@
 package commands;
 
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 
 import model.CommandFormat;
@@ -18,7 +18,7 @@ public class ShowCommand extends Command<Void, List<StudyGroup>> {
     }
 
     @Override
-    public List<StudyGroup> execute(HashSet<StudyGroup> collection, Void empty) {
+    public List<StudyGroup> execute(Collection<StudyGroup> collection, Void empty) {
         return collection.stream().sorted(Comparator.comparingLong(StudyGroup::getSerializedSize)).toList();
     }
 }

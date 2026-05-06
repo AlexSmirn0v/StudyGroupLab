@@ -1,6 +1,6 @@
 package commands;
 
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.CommandFormat;
 import model.StudyGroup;
@@ -15,7 +15,7 @@ public class HelpCommand extends Command<Void, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, Void empty) {
+    public String execute(Collection<StudyGroup> collection, Void empty) {
         return """
                 help : вывести справку по доступным командам
                 info : вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)

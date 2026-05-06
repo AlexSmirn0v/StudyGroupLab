@@ -1,6 +1,6 @@
 package commands;
 
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.CommandFormat;
 import model.StudyGroup;
@@ -15,7 +15,7 @@ public class AddCommand extends Command<StudyGroup, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, StudyGroup group) {
+    public String execute(Collection<StudyGroup> collection, StudyGroup group) {
         collection.add(group);
         return "Группа успешно добавлена в коллекцию";
     }

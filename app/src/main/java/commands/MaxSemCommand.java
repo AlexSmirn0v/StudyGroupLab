@@ -1,7 +1,7 @@
 package commands;
 
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 
 import model.CommandFormat;
@@ -17,7 +17,7 @@ public class MaxSemCommand extends Command<Void, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, Void empty) {
+    public String execute(Collection<StudyGroup> collection, Void empty) {
         List<StudyGroup> sortedList = collection.stream()
         .sorted(Comparator.comparing(StudyGroup::getSemesterEnum).reversed()).toList();
         

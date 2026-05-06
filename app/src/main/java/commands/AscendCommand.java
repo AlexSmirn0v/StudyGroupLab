@@ -2,7 +2,7 @@ package commands;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 
 import model.CommandFormat;
@@ -18,7 +18,7 @@ public class AscendCommand extends Command<Void, List<StudyGroup>> {
     }
 
     @Override
-    public List<StudyGroup> execute(HashSet<StudyGroup> collection, Void empty) {
+    public List<StudyGroup> execute(Collection<StudyGroup> collection, Void empty) {
         List<StudyGroup> sortedList = new ArrayList<>(collection);
         Collections.sort(sortedList);
         return sortedList;

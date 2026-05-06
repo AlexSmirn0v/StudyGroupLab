@@ -370,12 +370,24 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
         return semesterEnum;
     }
 
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
     public Long getStudentsCount() {
         return studentsCount;
     }
 
     public int getTransferredStudents() {
         return transferredStudents;
+    }
+
+    public Integer getAverageMark() {
+        return averageMark;
+    }
+
+    public Person getGroupAdmin() {
+        return groupAdmin;
     }
 
     /**

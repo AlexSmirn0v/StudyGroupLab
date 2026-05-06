@@ -11,11 +11,12 @@ import java.io.Serializable;
  * Главный класс сервера.
  */
 public class ServerMain {
-    private static final int PORT = 5000;
+    private static final int PORT = 4000;
     private static final long SELECT_TIMEOUT_MS = 200;
     private static ServerHandler handler = new ServerHandler();
-    // Массив из одного элемента статуса для расширяемости и передачи элемента в качестве ссылки
-    private static boolean[] status = new boolean[]{true};
+    // Массив из одного элемента статуса для расширяемости и передачи элемента в
+    // качестве ссылки
+    private static boolean[] status = new boolean[] { true };
 
     public static void main(String[] args) {
         String stdoutEncoding = System.getProperty("sun.stdout.encoding");

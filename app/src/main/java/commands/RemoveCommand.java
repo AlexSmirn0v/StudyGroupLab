@@ -1,6 +1,6 @@
 package commands;
 
-import java.util.HashSet;
+import java.util.Collection;
 
 import model.CommandFormat;
 import model.StudyGroup;
@@ -15,7 +15,7 @@ public class RemoveCommand extends Command<Long, String> {
     }
 
     @Override
-    public String execute(HashSet<StudyGroup> collection, Long id) {
+    public String execute(Collection<StudyGroup> collection, Long id) {
         try {
             for (StudyGroup group : collection) {
                 if (group.getId().equals(id)) {

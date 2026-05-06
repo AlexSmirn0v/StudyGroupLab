@@ -13,7 +13,7 @@ public class ServerLogger {
      * Логирует сообщение.
      * @param line сообщение для логирования
      */
-    static void log(String line) {
+    public static void log(String line) {
         LOGGER.info(line);
     }
 }
