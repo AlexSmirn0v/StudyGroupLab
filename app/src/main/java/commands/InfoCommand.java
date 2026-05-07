@@ -19,7 +19,7 @@ public class InfoCommand extends Command<Void, String> {
 
     @Override
     public String execute(String username, Collection<StudyGroup> collection, Void empty) {
-        System.out.println("Количество элементов: " + collection.size());
+        int size = collection.size();
 
         long sumParticipants = collection.stream()
                 .map((StudyGroup gr) -> gr.getStudentsCount())
@@ -31,7 +31,8 @@ public class InfoCommand extends Command<Void, String> {
                 .min(Comparator.naturalOrder())
                 .orElse(null);
 
-        return ("Общее количество студентов: " + sumParticipants + "\nДата инициализации коллекции: "
+        return ("Количество элементов: " + size + "\nОбщее количество студентов: " + sumParticipants
+                + "\nДата инициализации коллекции: "
                 + (creationDate != null ? creationDate.toString() : "Не установлена"));
     }
 }

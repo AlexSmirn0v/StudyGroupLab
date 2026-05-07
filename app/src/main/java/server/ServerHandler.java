@@ -121,13 +121,8 @@ public class ServerHandler {
             case "exit":
                 status[0] = false;
                 ServerLogger.log("Завершение работы сервера...");
-            // case "save":
-            //     HashSet<StudyGroup> collection = new HashSet<>();
-            //     String filename = System.getenv(ENV_VAR);
-            //     SaveCommand command = (SaveCommand) commandsMap.get("save");
-            //     return command.execute(collection, filename);
             default:
-                return "Из консоли сервера поддерживается только команды save и exit";
+                return "Из консоли сервера поддерживается только команда exit";
         }
     }
 

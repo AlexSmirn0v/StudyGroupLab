@@ -19,22 +19,19 @@ public class UpdateCommand extends Command<UpdateRequest, String> {
     @Override
     public String execute(String username, Collection<StudyGroup> collection, UpdateRequest upd) {
         StudyGroup groupToUpdate = null;
-        while (true) {
-            try {
-                Long id = upd.id();
-                for (StudyGroup group : collection) {
-                    if (group.getId().equals(id)) {
-                        groupToUpdate = group;
-                        break;
-                    }
+        try {
+            Long id = upd.id();
+            for (StudyGroup group : collection) {
+                if (group.getId().equals(id)) {
+                    groupToUpdate = group;
+                    break;
                 }
-                groupToUpdate.getId(); // Триггер для NullPointerException, если группа не найдена
-                break;
-            } catch (NumberFormatException e) {
-                return "Неверный формат числа\n" + errorMessage;
-            } catch (NullPointerException e) {
-                return "Группы с таким id не найдено\n" + errorMessage;
             }
+            groupToUpdate.getId(); // Триггер для NullPointerException, если группа не найдена
+        } catch (NumberFormatException e) {
+            return "Неверный формат числа\n" + errorMessage;
+        } catch (NullPointerException e) {
+            return "Группы с таким id не найдено\n" + errorMessage;
         }
 
         while (true) {

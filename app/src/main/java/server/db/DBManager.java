@@ -11,11 +11,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Objects;
 import java.util.List;
 import java.util.Properties;
 
 import model.Coordinates;
 import model.GroupBuilder;
+import model.GroupParams;
 import model.Person;
 import model.StudyGroup;
 import server.ServerLogger;
@@ -23,7 +25,6 @@ import utils.HashTools;
 
 public class DBManager {
     private static final Path DB_CFG_PATH = Path.of("db.cfg");
-    private static final Path SCHEMA_PATH = Path.of("app", "src", "main", "java", "server", "db", "schema.sql");
 
     private final DBCollection collection;
     private final Properties config;
@@ -45,14 +46,16 @@ public class DBManager {
     public Connection getConnection() throws SQLException, IOException {
         String user = requireConfig("user");
         String password = requireConfig("password");
-        String url = "jdbc:postgresql://" + requireConfig("host") + ":" + requireConfig("port") + "/" + requireConfig("name");
+        String url = "jdbc:postgresql://" + requireConfig("host") + ":" + requireConfig("port") + "/"
+                + requireConfig("name");
         Connection connection = DriverManager.getConnection(url, user, password);
         connection.setAutoCommit(true);
         return connection;
     }
 
     public void initSchema() throws SQLException, IOException {
-        String schemaSql = Files.readString(SCHEMA_PATH, StandardCharsets.UTF_8);
+        Path schemaPath = Path.of(requireConfig("initsql"));
+        String schemaSql = Files.readString(schemaPath, StandardCharsets.UTF_8);
         try (Connection conn = getConnection();
                 Statement statement = conn.createStatement()) {
             for (String line : schemaSql.split(";")) {
@@ -231,6 +234,49 @@ public class DBManager {
         }
     }
 
+    public StudyGroup getStudyGroupById(long id) {
+        String sql = """
+                SELECT
+                    sg.id,
+                    sg.creation_date,
+                    sg.name,
+                    c.x,
+                    c.y,
+                    sg.students_count,
+                    sg.transferred_students,
+                    sg.average_mark,
+                    sem.val AS semester_val,
+                    a.name AS admin_name,
+                    a.height AS admin_height,
+                    a.passportID AS admin_passport_id,
+                    clr.val AS admin_hair_color,
+                    u.login AS owner_login
+                FROM study_groups sg
+                INNER JOIN coordinates c ON sg.coordinates_id = c.id
+                LEFT JOIN semesters sem ON sg.semester_id = sem.id
+                LEFT JOIN admins a ON sg.group_admin_id = a.id
+                LEFT JOIN colors clr ON a.hair_color_id = clr.id
+                INNER JOIN users u ON sg.owner_id = u.id
+                WHERE sg.id = ?
+                """;
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                String csv = toCsvLine(rs);
+                StudyGroup group = new GroupBuilder().fromCSVString(csv, ";").buildLoaded();
+                group.setAuthor(rs.getString("owner_login"));
+                return group;
+            }
+        } catch (SQLException | IOException e) {
+            ServerLogger.log("Не получилось подключиться к БД: " + e.getMessage());
+            return null;
+        }
+    }
+
     public DBCollection loadStudyGroups() throws SQLException {
         String sql = """
                 SELECT
@@ -283,8 +329,6 @@ public class DBManager {
             throw new IllegalStateException("Пользователь не найден: " + group.getAuthorName());
         }
         try {
-            // Schema already has UNIQUE(name), but we convert constraint errors into a
-            // user-friendly message.
             if (studyGroupNameExists(group.getName())) {
                 throw new IllegalArgumentException("Группа с таким именем уже существует");
             }
@@ -308,7 +352,6 @@ public class DBManager {
                 return rs.next();
             }
         } catch (SQLException | IOException e) {
-            // If check fails, let insert attempt fail and be handled upstream.
             ServerLogger.log("Не удалось проверить уникальность имени группы: " + e.getMessage());
             return false;
         }
@@ -328,6 +371,247 @@ public class DBManager {
             throw new IllegalStateException("Пользователь не найден: " + username);
         }
         return clearUserStudyGroups(userData.id());
+    }
+
+    public boolean persistUpdateStudyGroup(long groupId, GroupParams param, String value, String username) {
+        UserData userData = findUser(username);
+        if (userData == null) {
+            throw new IllegalStateException("Пользователь не найден: " + username);
+        }
+        return updateStudyGroupParam(groupId, userData.id(), param, value);
+    }
+
+    private boolean updateStudyGroupParam(long groupId, int ownerId, GroupParams param, String value) {
+        Objects.requireNonNull(param, "param");
+        String val = value == null ? "" : value;
+
+        try (Connection conn = getConnection()) {
+            boolean oldAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try {
+                boolean updated = switch (param) {
+                    case NAME -> updateName(conn, groupId, ownerId, val);
+                    case COORDS -> updateCoordinates(conn, groupId, ownerId, val);
+                    case STUDENTS_COUNT -> updateStudentsCount(conn, groupId, ownerId, val);
+                    case TRANSFERRED_STUDENTS -> updateTransferred(conn, groupId, ownerId, val);
+                    case AVERAGE_MARK -> updateAverage(conn, groupId, ownerId, val);
+                    case SEMESTER_ENUM -> updateSemester(conn, groupId, ownerId, val);
+                    case GROUP_ADMIN -> updateAdmin(conn, groupId, ownerId, val);
+                };
+                conn.commit();
+                return updated;
+            } catch (SQLException e) {
+                conn.rollback();
+                return false;
+            } finally {
+                conn.setAutoCommit(oldAutoCommit);
+            }
+        } catch (SQLException | IOException e) {
+            ServerLogger.log("Не получилось подключиться к БД: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean updateName(Connection conn, long groupId, int ownerId, String newName) throws SQLException {
+        if (newName == null || newName.isBlank()) {
+            throw new IllegalArgumentException("Пустая строка");
+        }
+        String check = "SELECT id FROM study_groups WHERE name = ? LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(check)) {
+            stmt.setString(1, newName.trim());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    long existingId = rs.getLong("id");
+                    if (existingId != groupId) {
+                        throw new IllegalArgumentException("Группа с таким именем уже существует");
+                    }
+                }
+            }
+        }
+
+        String sql = "UPDATE study_groups SET name = ? WHERE id = ? AND owner_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, newName.trim());
+            stmt.setLong(2, groupId);
+            stmt.setInt(3, ownerId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    private boolean updateCoordinates(Connection conn, long groupId, int ownerId, String coords) throws SQLException {
+        String select = "SELECT coordinates_id FROM study_groups WHERE id = ? AND owner_id = ?";
+        Integer coordinatesId = null;
+        try (PreparedStatement stmt = conn.prepareStatement(select)) {
+            stmt.setLong(1, groupId);
+            stmt.setInt(2, ownerId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    return false;
+                }
+                coordinatesId = rs.getInt("coordinates_id");
+            }
+        }
+
+        if (coords == null || coords.isBlank()) {
+            throw new IllegalArgumentException("Пустая строка");
+        }
+        String[] parts = coords.split(StudyGroup.DELIMITER, -1);
+        long x = Long.parseLong(parts[0].trim());
+        long y = 0;
+        if (parts.length > 1 && !parts[1].isBlank()) {
+            y = Long.parseLong(parts[1].trim());
+        }
+
+        String sql = "UPDATE coordinates SET x = ?, y = ? WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, x);
+            stmt.setLong(2, y);
+            stmt.setInt(3, coordinatesId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    private boolean updateStudentsCount(Connection conn, long groupId, int ownerId, String count) throws SQLException {
+        String sql = "UPDATE study_groups SET students_count = ? WHERE id = ? AND owner_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            if (count == null || count.isBlank()) {
+                stmt.setNull(1, java.sql.Types.BIGINT);
+            } else {
+                long v = Long.parseLong(count.trim());
+                if (v <= 0) {
+                    throw new IllegalArgumentException("Невозможное число");
+                }
+                stmt.setLong(1, v);
+            }
+            stmt.setLong(2, groupId);
+            stmt.setInt(3, ownerId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    private boolean updateTransferred(Connection conn, long groupId, int ownerId, String transferred)
+            throws SQLException {
+        if (transferred == null || transferred.isBlank()) {
+            throw new IllegalArgumentException("Пустая строка");
+        }
+        int v = Integer.parseInt(transferred.trim());
+        if (v <= 0) {
+            throw new IllegalArgumentException("Невозможное число");
+        }
+        String sql = "UPDATE study_groups SET transferred_students = ? WHERE id = ? AND owner_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, v);
+            stmt.setLong(2, groupId);
+            stmt.setInt(3, ownerId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    private boolean updateAverage(Connection conn, long groupId, int ownerId, String average) throws SQLException {
+        if (average == null || average.isBlank()) {
+            throw new IllegalArgumentException("Пустая строка");
+        }
+        int v = Integer.parseInt(average.trim());
+        if (v <= 0) {
+            throw new IllegalArgumentException("Невозможное число");
+        }
+        String sql = "UPDATE study_groups SET average_mark = ? WHERE id = ? AND owner_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, v);
+            stmt.setLong(2, groupId);
+            stmt.setInt(3, ownerId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    private Integer upsertSemester(Connection conn, String semesterVal) throws SQLException {
+        String sql = "INSERT INTO semesters(val) VALUES (?) ON CONFLICT (val) DO UPDATE SET val = EXCLUDED.val RETURNING id";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, semesterVal);
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                return rs.getInt("id");
+            }
+        }
+    }
+
+    private boolean updateSemester(Connection conn, long groupId, int ownerId, String semester) throws SQLException {
+        Integer semesterId = null;
+        if (semester != null && !semester.isBlank()) {
+            semesterId = upsertSemester(conn, semester.trim());
+        }
+        String sql = "UPDATE study_groups SET semester_id = ? WHERE id = ? AND owner_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            if (semesterId == null) {
+                stmt.setNull(1, java.sql.Types.INTEGER);
+            } else {
+                stmt.setInt(1, semesterId);
+            }
+            stmt.setLong(2, groupId);
+            stmt.setInt(3, ownerId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    private boolean updateAdmin(Connection conn, long groupId, int ownerId, String admin) throws SQLException {
+        if (admin == null || admin.isBlank()) {
+            String sql = "UPDATE study_groups SET group_admin_id = NULL WHERE id = ? AND owner_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setLong(1, groupId);
+                stmt.setInt(2, ownerId);
+                return stmt.executeUpdate() > 0;
+            }
+        }
+
+        String[] parts = admin.split(StudyGroup.DELIMITER, -1);
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Недостаточное количество элементов");
+        }
+        String name = parts[0].trim();
+        int height = Integer.parseInt(parts[1].trim());
+        if (height <= 0) {
+            throw new IllegalArgumentException("Невозможное число");
+        }
+        String passportId = parts[2].trim();
+        String hairColor = (parts.length > 3) ? parts[3].trim() : "";
+
+        Integer colorId = null;
+        if (!hairColor.isBlank()) {
+            // Reuse existing upsert for colors.
+            String sqlColor = "INSERT INTO colors(val) VALUES (?) ON CONFLICT (val) DO UPDATE SET val = EXCLUDED.val RETURNING id";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlColor)) {
+                stmt.setString(1, hairColor);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    rs.next();
+                    colorId = rs.getInt("id");
+                }
+            }
+        }
+
+        Integer adminId = null;
+        String sqlAdmin = "INSERT INTO admins(name, height, passportID, hair_color_id) VALUES (?, ?, ?, ?) RETURNING id";
+        try (PreparedStatement stmt = conn.prepareStatement(sqlAdmin)) {
+            stmt.setString(1, name);
+            stmt.setInt(2, height);
+            stmt.setString(3, passportId);
+            if (colorId == null) {
+                stmt.setNull(4, java.sql.Types.INTEGER);
+            } else {
+                stmt.setInt(4, colorId);
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                adminId = rs.getInt("id");
+            }
+        }
+
+        String sql = "UPDATE study_groups SET group_admin_id = ? WHERE id = ? AND owner_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, adminId);
+            stmt.setLong(2, groupId);
+            stmt.setInt(3, ownerId);
+            return stmt.executeUpdate() > 0;
+        }
     }
 
     public boolean removeStudyGroup(long groupId, int ownerId) {

@@ -67,6 +67,7 @@ final public class PayloadMaker {
                 id = Long.parseLong(arg.isBlank() ? getInput(null) : arg);
                 break;
             } catch (NumberFormatException e) {
+                arg = "";
                 ioHandler.println("Неверный формат числа");
                 ioHandler.println(errorMessage);
             }

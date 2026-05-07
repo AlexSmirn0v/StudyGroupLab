@@ -9,6 +9,7 @@ import java.util.Scanner;
 public class IOHandler implements AutoCloseable {
     private Scanner scanner;
     private Charset consoleCharset;
+    private boolean insideFile = false;
 
     public IOHandler() {
         consoleCharset = (System.console() != null)
@@ -27,10 +28,11 @@ public class IOHandler implements AutoCloseable {
     }
 
     public void changeSource(InputStream newSource) {
-        if (newSource instanceof BufferedInputStream) {
+        if (insideFile) {
             close();
         }
         scanner = new Scanner(newSource, consoleCharset);
+        insideFile = (newSource instanceof BufferedInputStream);
     }
 
     /**

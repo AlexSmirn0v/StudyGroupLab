@@ -61,12 +61,33 @@ public class DBCollection extends AbstractCollection<StudyGroup> {
             return false;
         }
         if (!username.equals(o.getAuthorName())) {
-            throw new IllegalCallerException("Автор группы не совпадает с тем, кто вызывает удаление.");
+            throw new IllegalCallerException("Автор группы не совпадает с тем, кто редактирует.");
         }
-        if (dbManager != null && !dbManager.persistRemoveStudyGroup(o.getId(), username)) {
-            return false;
+        if (dbManager == null) {
+            boolean removed = groups.remove(o);
+            o.edit(param, value);
+            return groups.add(o) && removed;
         }
-        return groups.remove(o);
+
+        StudyGroup before = dbManager.getStudyGroupById(o.getId());
+        groups.remove(o);
+        try {
+            o.edit(param, value);
+            if (!dbManager.persistUpdateStudyGroup(o.getId(), param, value, username)) {
+                if (before != null) {
+                    groups.add(before);
+                }
+                return false;
+            }
+        } catch (RuntimeException e) {
+            if (before != null) {
+                groups.add(before);
+            }
+            throw e;
+        }
+
+        StudyGroup refreshed = dbManager.getStudyGroupById(o.getId());
+        return groups.add(refreshed != null ? refreshed : o);
     }
 
     public synchronized boolean clear(String username) {
