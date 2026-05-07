@@ -98,8 +98,9 @@ final public class PayloadMaker {
      * 
      * @return объект StudyGroup с данными нового элемента
      */
-    public StudyGroup askGroup() {
+    public StudyGroup askGroup(String authorName) {
         GroupBuilder builder = new GroupBuilder();
+        builder.setAuthor(authorName);
         askUntilValid(makeDesc(GroupParams.NAME.getInputAsks()), builder::setName);
         askUntilValid(makeDesc(GroupParams.COORDS.getInputAsks()), builder::setCoords);
         askUntilValid(makeDesc(GroupParams.STUDENTS_COUNT.getInputAsks()), builder::setStudentsCount);

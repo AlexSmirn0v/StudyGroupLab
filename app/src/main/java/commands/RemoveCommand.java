@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import model.CommandFormat;
 import model.StudyGroup;
+import server.db.DBCollection;
 
 /**
  * Команда для удаления группы по ID.
@@ -15,11 +16,15 @@ public class RemoveCommand extends Command<Long, String> {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, Long id) {
+    public String execute(String username, Collection<StudyGroup> collection, Long id) {
         try {
             for (StudyGroup group : collection) {
                 if (group.getId().equals(id)) {
-                    collection.remove(group);
+                    if (collection instanceof DBCollection dbCollection) {
+                        dbCollection.remove(group, username);
+                    } else {
+                        collection.remove(group);
+                    }
                     return "Группа успешно удалена";
                 }
             }

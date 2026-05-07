@@ -1,7 +1,5 @@
 package model;
 
-import java.util.UUID;
-
 import utils.CSVTools;
 
 /**
@@ -42,6 +40,11 @@ public class GroupBuilder {
         group.setCoords(coords);
         return this;
     }
+    
+    public GroupBuilder setAuthor(String author) {
+        group.setAuthor(author);
+        return this;
+    }
 
     public GroupBuilder setStudentsCount(String studentsCount) throws IllegalArgumentException {
         group.setCount(studentsCount);
@@ -69,7 +72,6 @@ public class GroupBuilder {
     }
 
     public StudyGroup build() {
-        group.setID(Integer.toUnsignedLong(Math.abs(UUID.randomUUID().toString().hashCode())));
         group.setCreationDate(java.time.LocalDateTime.now());
         return group;
     }

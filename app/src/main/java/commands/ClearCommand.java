@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import model.CommandFormat;
 import model.StudyGroup;
+import server.db.DBCollection;
 
 /**
  * Команда для очистки коллекции.
@@ -15,8 +16,12 @@ public class ClearCommand extends Command<Void, String>  {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, Void empty) {
-        collection.clear();
+    public String execute(String username, Collection<StudyGroup> collection, Void empty) {
+        if (collection instanceof DBCollection dbCollection) {
+            dbCollection.clear(username);
+        } else {
+            collection.clear();
+        }
         return "Коллекция очищена.";
     }
 }

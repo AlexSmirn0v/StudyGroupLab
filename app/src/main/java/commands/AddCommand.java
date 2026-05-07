@@ -15,8 +15,11 @@ public class AddCommand extends Command<StudyGroup, String> {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, StudyGroup group) {
-        collection.add(group);
-        return "Группа успешно добавлена в коллекцию";
+    public String execute(String username, Collection<StudyGroup> collection, StudyGroup group) {
+        if (collection.add(group)) {
+            return "Группа успешно добавлена в коллекцию";
+        } else {
+            return "Не удалось добавить группу в коллекцию";
+        }
     }
 }

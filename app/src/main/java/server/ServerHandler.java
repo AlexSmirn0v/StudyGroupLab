@@ -1,16 +1,16 @@
 package server;
 
 import java.sql.SQLException;
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import model.CommandFormat;
 import model.CommandMessage;
-import model.StudyGroup;
 import server.db.DBCollection;
-import server.db.DBConnector;
+import server.db.DBManager;
+import server.db.DBManager.UserData;
 import commands.*;
 
 /**
@@ -20,10 +20,10 @@ public class ServerHandler {
     static final String ENV_VAR = "GROUPS_FILE";
     static final String CSV_DELIMITER = ";";
 
-    static HashMap<String, Command<?, ?>> commandsMap = new HashMap<>();
+    static final Map<String, Command<?, ?>> commandsMap = Map.copyOf(listCommands());
     static DBCollection groupSet;
-    static DBConnector dbConnect;
-    static Deque<String> history = new ArrayDeque<>() {
+    static DBManager dbManager;
+    static Deque<String> history = new ConcurrentLinkedDeque<>() {
         private final int maxSize = 5;
 
         @Override
@@ -35,9 +35,8 @@ public class ServerHandler {
     };
 
     public ServerHandler() {
-        dbConnect = new DBConnector();
+        dbManager = new DBManager();
         groupSet = loadCollection();
-        commandsMap = listCommands();
     }
 
     /**
@@ -45,13 +44,12 @@ public class ServerHandler {
      * @return коллекция учебных групп
      */
     private static DBCollection loadCollection() {
-        DBCollection res = new DBCollection();
         try {
-            res = dbConnect.loadStudyGroups();
+            return dbManager.loadStudyGroups();
         } catch (SQLException e) {
             ServerLogger.log("Не удалось подключиться к базе данных: " + e.getMessage());
+            return dbManager.getCollection();
         }
-        return res;
     }
 
     /**
@@ -69,7 +67,7 @@ public class ServerHandler {
                 new UpdateCommand(),
                 new RemoveCommand(),
                 new ClearCommand(),
-                new SaveCommand(),
+                // new SaveCommand(),
                 new AddMinCommand(),
                 new RemoveLowerCommand(),
                 new HistoryCommand(),
@@ -94,12 +92,20 @@ public class ServerHandler {
         if (command == null) {
             return null;
         }
-
+        UserData userData = dbManager.authOrCreateUser(request.username(), request.password());
+        if (userData != null) {
+            ServerLogger.log("Пользователь " + request.username() + " выполнил команду " + commandForm.getName());
+        } else {
+            ServerLogger.log("Пользователь " + request.username() + " не прошёл аутентификацию при попытке выполнить команду " + commandForm.getName());
+            return "Неверный пароль";
+        }
         history.add(commandForm.getName());
         if (commandForm == CommandFormat.HISTORY) {
-            return ((HistoryCommand) command).execute(groupSet, history);
+            return ((HistoryCommand) command).execute(userData.login(), groupSet, history);
         }
-        return executeCommand(command, request.getPayload());
+        Object result = executeCommand(userData.login(), command, request.getPayload());
+        ServerLogger.log("Результат команды: " + result);
+        return result;
     }
 
     /**
@@ -117,11 +123,11 @@ public class ServerHandler {
             case "exit":
                 status[0] = false;
                 ServerLogger.log("Завершение работы сервера...");
-            case "save":
-                HashSet<StudyGroup> collection = new HashSet<>();
-                String filename = System.getenv(ENV_VAR);
-                SaveCommand command = (SaveCommand) commandsMap.get("save");
-                return command.execute(collection, filename);
+            // case "save":
+            //     HashSet<StudyGroup> collection = new HashSet<>();
+            //     String filename = System.getenv(ENV_VAR);
+            //     SaveCommand command = (SaveCommand) commandsMap.get("save");
+            //     return command.execute(collection, filename);
             default:
                 return "Из консоли сервера поддерживается только команды save и exit";
         }
@@ -135,7 +141,7 @@ public class ServerHandler {
      * @return результат
      */
     @SuppressWarnings("unchecked")
-    private Object executeCommand(Command<?, ?> command, Object payload) {
-        return ((Command<Object, Object>) command).execute(groupSet, payload);
+    private Object executeCommand(String userLogin, Command<?, ?> command, Object payload) {
+        return ((Command<Object, Object>) command).execute(userLogin, groupSet, payload);
     }
 }

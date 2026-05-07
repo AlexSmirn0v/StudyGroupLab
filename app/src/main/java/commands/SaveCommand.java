@@ -19,7 +19,7 @@ public class SaveCommand extends Command<String, String> {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, String filename) {
+    public String execute(String username, Collection<StudyGroup> collection, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, StandardCharsets.UTF_8))) {
             for (StudyGroup group : collection) {
                 writer.write(group.toCSVString(";"));

@@ -18,7 +18,7 @@ public class InfoCommand extends Command<Void, String> {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, Void empty) {
+    public String execute(String username, Collection<StudyGroup> collection, Void empty) {
         System.out.println("Количество элементов: " + collection.size());
 
         long sumParticipants = collection.stream()

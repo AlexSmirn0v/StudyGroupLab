@@ -18,7 +18,7 @@ public class AscendCommand extends Command<Void, List<StudyGroup>> {
     }
 
     @Override
-    public List<StudyGroup> execute(Collection<StudyGroup> collection, Void empty) {
+    public List<StudyGroup> execute(String username, Collection<StudyGroup> collection, Void empty) {
         List<StudyGroup> sortedList = new ArrayList<>(collection);
         Collections.sort(sortedList);
         return sortedList;

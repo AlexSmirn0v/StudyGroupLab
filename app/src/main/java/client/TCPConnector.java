@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.security.UnrecoverableKeyException;
 
 import model.CommandMessage;
 
@@ -68,8 +69,9 @@ public class TCPConnector implements AutoCloseable{
      * @return ответ сервера
      * @throws IOException при ошибке чтения
      * @throws ClassNotFoundException если класс ответа не найден
+     * @throws UnrecoverableKeyException если пользователь отправил существующий логин с неверным паролем
      */
-    public Object readResponse() throws IOException, ClassNotFoundException {
+    public Object readResponse() throws IOException, ClassNotFoundException, UnrecoverableKeyException {
         ByteBuffer lengthBuffer = ByteBuffer.allocate(Integer.BYTES);
         readFully(lengthBuffer);
         lengthBuffer.flip();
@@ -83,7 +85,11 @@ public class TCPConnector implements AutoCloseable{
         readFully(responseBuffer);
 
         try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(responseBuffer.array()))) {
-            return input.readObject();
+            Object result = input.readObject();
+            if (result instanceof String && ((String) result).startsWith("Неверный пароль")) {
+                throw new UnrecoverableKeyException((String) result);
+            }
+            return result;
         }
     }
 

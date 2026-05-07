@@ -16,7 +16,7 @@ public class UpdateCommand extends Command<UpdateRequest, String> {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, UpdateRequest upd) {
+    public String execute(String username, Collection<StudyGroup> collection, UpdateRequest upd) {
         StudyGroup groupToUpdate = null;
         while (true) {
             try {

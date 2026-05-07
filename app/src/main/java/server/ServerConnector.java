@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Менеджер обработки сетевых соединений сервера.
@@ -21,7 +22,8 @@ public class ServerConnector {
     private final int port;
     private final Selector selector;
     private final ServerSocketChannel serverChannel;
-    private final Queue<IncomingRequest> payloadQueue = new ArrayDeque<>();
+    private final Queue<IncomingRequest> payloadQueue = new ConcurrentLinkedDeque<>();
+    private final Queue<Runnable> selectorTasks = new ConcurrentLinkedDeque<>();
 
     /**
      * Запускает сервер на указанном порте.
@@ -65,11 +67,13 @@ public class ServerConnector {
      * @throws IOException при ошибке ввода-вывода
      */
     public void pump(long timeoutMs) throws IOException {
+        runSelectorTasks();
         if (timeoutMs <= 0) {
             selector.selectNow();
         } else {
             selector.select(timeoutMs);
         }
+        runSelectorTasks();
 
         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
         while (keys.hasNext()) {
@@ -107,6 +111,15 @@ public class ServerConnector {
         return payloadQueue.poll();
     }
 
+    public Runnable getQueueRunnable(SocketChannel client, byte[] payload) {
+        return () -> {
+            try {
+                queueResponse(client, payload);
+            } catch (IOException e) {
+                ServerLogger.log("Ошибка при отправке ответа клиенту: " + e.getMessage());
+            }
+        };
+    }
     /**
      * Ставит ответ в очередь для отправки клиенту.
      * 
@@ -114,14 +127,24 @@ public class ServerConnector {
      * @param payload информация ответа в виде массива байтов
      * @throws IOException при ошибке ввода-вывода
      */
-    public void queueResponse(SocketChannel client, byte[] payload) throws IOException {
+    private void queueResponse(SocketChannel client, byte[] payload) throws IOException {
         if (payload == null || payload.length == 0) {
             throw new IllegalArgumentException("Ответ не может быть пустым");
         }
         if (payload.length > MAX_MESSAGE_BYTES) {
             throw new IllegalArgumentException("Размер ответа превышает лимит: " + payload.length);
         }
+        selectorTasks.offer(() -> {
+            try {
+                queueResponseOnSelector(client, payload);
+            } catch (IOException | IllegalStateException e) {
+                ServerLogger.log("Не удалось поставить ответ в очередь отправки: " + e.getMessage());
+            }
+        });
+        selector.wakeup();
+    }
 
+    private void queueResponseOnSelector(SocketChannel client, byte[] payload) throws IOException {
         SelectionKey key = client.keyFor(selector);
         if (key == null || !key.isValid()) {
             throw new IOException("Клиент не зарегистрирован в селекторе");
@@ -139,6 +162,13 @@ public class ServerConnector {
 
         state.pendingWrites.offer(framed);
         key.interestOps(key.interestOps() | SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+    }
+
+    private void runSelectorTasks() {
+        Runnable task;
+        while ((task = selectorTasks.poll()) != null) {
+            task.run();
+        }
     }
 
     /**
@@ -206,7 +236,7 @@ public class ServerConnector {
         byte[] payload = new byte[state.dataBuffer.remaining()];
         state.dataBuffer.get(payload);
         state.dataBuffer = null;
-        payloadQueue.offer(new IncomingRequest(channel, payload));
+        payloadQueue.add(new IncomingRequest(channel, payload));
         ServerLogger.log("Получен набор байтов: " + payload);
     }
 

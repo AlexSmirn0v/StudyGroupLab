@@ -14,11 +14,13 @@ public class AddMinCommand extends Command<StudyGroup, String> {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, StudyGroup group) {
+    public String execute(String username, Collection<StudyGroup> collection, StudyGroup group) {
         boolean shouldAdd = collection.stream().allMatch(x -> group.compareTo(x) < 0);
         if (shouldAdd) {
-            collection.add(group);
-            return "Группа успешно добавлена в коллекцию";
+            if (collection.add(group)) {
+                return "Группа успешно добавлена в коллекцию";
+            }
+            return "Не удалось добавить группу в коллекцию";
         } else {
             return "Группа не была добавлена, так как она не является минимальной";
         }

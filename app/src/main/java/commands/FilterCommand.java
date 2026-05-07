@@ -17,7 +17,7 @@ public class FilterCommand extends Command<String, List<StudyGroup>> {
     }
 
     @Override
-    public List<StudyGroup> execute(Collection<StudyGroup> collection, String name) {
+    public List<StudyGroup> execute(String username, Collection<StudyGroup> collection, String name) {
         List<StudyGroup> res = collection.stream().filter((StudyGroup group) -> group.getName().contains(name))
                 .sorted(Comparator.comparingLong(StudyGroup::getSerializedSize)).toList();
         return res;

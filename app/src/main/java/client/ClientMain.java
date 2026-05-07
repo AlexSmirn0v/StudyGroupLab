@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.security.UnrecoverableKeyException;
 
 import model.CommandMessage;
 import model.CommandFormat;
@@ -82,7 +83,7 @@ final public class ClientMain {
                 case ADD:
                 case ADD_MIN:
                 case REMOVE_LOW:
-                    message = new CommandMessage(command, maker.askGroup(), username, password);
+                    message = new CommandMessage(command, maker.askGroup(username), username, password);
                     break;
                 case UPDATE:
                     message = new CommandMessage(command, maker.askUpdate(argument), username, password);
@@ -102,7 +103,10 @@ final public class ClientMain {
             try {
                 connector.sendMessage(message);
                 Object response = connector.readResponse();
-                ioHandler.println(response);
+                ioHandler.printResponse(response);
+            } catch (UnrecoverableKeyException e) {
+                ioHandler.println("Ошибка aутентификации: " + e.getMessage());
+                loginManager.askCredentials(ioHandler);
             } catch (IOException e) {
                 ioHandler.println(e.getClass().getSimpleName() + e.getMessage());
                 ioHandler.println("Отсутствует подключение к серверу");

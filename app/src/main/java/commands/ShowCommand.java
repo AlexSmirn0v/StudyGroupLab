@@ -18,7 +18,7 @@ public class ShowCommand extends Command<Void, List<StudyGroup>> {
     }
 
     @Override
-    public List<StudyGroup> execute(Collection<StudyGroup> collection, Void empty) {
+    public List<StudyGroup> execute(String username, Collection<StudyGroup> collection, Void empty) {
         return collection.stream().sorted(Comparator.comparingLong(StudyGroup::getSerializedSize)).toList();
     }
 }

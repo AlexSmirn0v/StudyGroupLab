@@ -16,7 +16,7 @@ public class HistoryCommand extends Command<Deque<String>, String> {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, Deque<String> history) {
+    public String execute(String username, Collection<StudyGroup> collection, Deque<String> history) {
         String res = "Последние " + history.size() + " команд";
         switch (history.size()) {
             case 1:

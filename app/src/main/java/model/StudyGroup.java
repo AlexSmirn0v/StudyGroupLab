@@ -18,6 +18,9 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
                      // поля должно быть уникальным, Значение этого поля должно генерироваться
                      // автоматически
     private String name; // Поле не может быть null, Строка не может быть пустой
+
+    private String authorName;
+
     private Coordinates coordinates; // Поле не может быть null
     private LocalDateTime creationDate; // Поле не может быть null, Значение этого поля должно генерироваться
                                         // автоматически
@@ -160,6 +163,18 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
     }
 
     /**
+     * Устанавливает имя автора учебной группы.
+     * 
+     * @param newName
+     * @throws IllegalArgumentException
+     */
+    public void setAuthor(String newName) throws IllegalArgumentException {
+        if (newName == null || newName.isBlank())
+            throw new IllegalArgumentException("Пустая строка");
+        this.authorName = newName;
+    }
+
+    /**
      * Устанавливает координаты учебной группы.
      * 
      * @param newCoords описание координат в формате "x;y" или просто "x" (y будет
@@ -222,10 +237,12 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
     }
 
     /**
-     * Устанавливает среднюю оценку в учебной группе. Значение должно быть больше 0 и не может быть null.
+     * Устанавливает среднюю оценку в учебной группе. Значение должно быть больше 0
+     * и не может быть null.
      * 
      * @param averageMark строка со средней оценкой
-     * @throws IllegalArgumentException если строка не может быть преобразована в число или число не больше 0
+     * @throws IllegalArgumentException если строка не может быть преобразована в
+     *                                  число или число не больше 0
      */
     void setAverage(String averageMark) throws IllegalArgumentException {
         if (averageMark == null || averageMark.isBlank())
@@ -243,7 +260,8 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
      * Устанавливает семестр учебной группы. Значение может быть null.
      * 
      * @param semester строка с названием семестра
-     * @throws IllegalArgumentException если строка не может быть преобразована в семестр
+     * @throws IllegalArgumentException если строка не может быть преобразована в
+     *                                  семестр
      */
     void setSemester(String semester) throws IllegalArgumentException {
         this.semesterEnum = Semester.getByName(semester);
@@ -364,6 +382,10 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
 
     public String getName() {
         return name;
+    }
+
+    public String getAuthorName() {
+        return authorName;
     }
 
     public Semester getSemesterEnum() {

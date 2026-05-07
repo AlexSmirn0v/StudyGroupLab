@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import model.CommandFormat;
 import model.StudyGroup;
+import server.db.DBCollection;
 
 /**
  * Команда для удаления групп, меньших заданной.
@@ -16,11 +17,15 @@ public class RemoveLowerCommand extends Command<StudyGroup, String> {
     }
 
     @Override
-    public String execute(Collection<StudyGroup> collection, StudyGroup group) {
+    public String execute(String username, Collection<StudyGroup> collection, StudyGroup group) {
         Optional<StudyGroup> firstGroup = collection.stream().filter((StudyGroup gr) -> gr.compareTo(group) < 0).findFirst();
         if (firstGroup.isPresent()) {
             StudyGroup gr = firstGroup.get();
-            collection.remove(gr);
+            if (collection instanceof DBCollection dbCollection) {
+                dbCollection.remove(gr, username);
+            } else {
+                collection.remove(gr);
+            }
             return "Группа " + gr.getName() + " была удалена из коллекции\n";
         }
         return "Группа не найдена";
