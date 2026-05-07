@@ -21,7 +21,7 @@ public class ServerMain {
     private static final int PROCESS_POOL_SIZE = 8;
     private static final ServerHandler handler = new ServerHandler();
     private static final AtomicBoolean running = new AtomicBoolean(true);
-    
+
     // Массив из одного элемента статуса для расширяемости и передачи элемента в
     // качестве ссылки
     private static final boolean[] consoleStatus = new boolean[] { true };
@@ -66,20 +66,15 @@ public class ServerMain {
         }
     }
 
-    private static void processRequest(ServerConnector connect, ServerConnector.IncomingRequest incoming, CommandMessage request) {
+    private static void processRequest(ServerConnector connect, ServerConnector.IncomingRequest incoming,
+            CommandMessage request) {
         ServerLogger.log("Обрабатывается команда " + request.command().getName());
-        Object result;
-        try {
-            result = handler.run(request);
-        } catch (RuntimeException e) {
-            ServerLogger.log("Ошибка выполнения команды " + request.command().getName() + ": " + e.getMessage());
-            result = "Ошибка выполнения команды: " + e.getMessage();
-        }
+        Object result = handler.run(request);
         Class<?> expected = request.command().getRespClass();
         if (result == null) {
             return;
         }
-        if (!expected.isAssignableFrom(result.getClass())) {
+        if (!expected.isAssignableFrom(result.getClass()) && result.getClass() != String.class) {
             ServerLogger.log("Пропуск ответа: ожидался " + expected.getSimpleName()
                     + ", получено " + result.getClass().getSimpleName());
             return;

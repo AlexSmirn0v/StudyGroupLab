@@ -4,6 +4,7 @@ import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import model.GroupParams;
 import model.StudyGroup;
 
 public class DBCollection extends AbstractCollection<StudyGroup> {
@@ -19,6 +20,7 @@ public class DBCollection extends AbstractCollection<StudyGroup> {
     public Iterator<StudyGroup> iterator() {
         return groups.iterator();
     }
+
     @Override
     public int size() {
         return groups.size();
@@ -31,8 +33,9 @@ public class DBCollection extends AbstractCollection<StudyGroup> {
         }
         if (dbManager != null) {
             dbManager.persistAddStudyGroup(group);
+            return groups.add(dbManager.getStudyGroupByName(group.getName()));
         }
-        return groups.add(group);
+        return false;
     }
 
     public synchronized boolean addLoaded(StudyGroup group) {
@@ -52,9 +55,23 @@ public class DBCollection extends AbstractCollection<StudyGroup> {
         return groups.remove(o);
     }
 
+    public synchronized boolean update(StudyGroup o, GroupParams param, String value, String username)
+            throws IllegalCallerException {
+        if (o == null || o.getId() == null) {
+            return false;
+        }
+        if (!username.equals(o.getAuthorName())) {
+            throw new IllegalCallerException("Автор группы не совпадает с тем, кто вызывает удаление.");
+        }
+        if (dbManager != null && !dbManager.persistRemoveStudyGroup(o.getId(), username)) {
+            return false;
+        }
+        return groups.remove(o);
+    }
+
     public synchronized boolean clear(String username) {
-        if (dbManager != null) {
-            dbManager.persistClearStudyGroups(username);
+        if (dbManager == null || !dbManager.persistClearStudyGroups(username)) {
+            return false;
         }
         boolean removedAny = false;
         for (StudyGroup group : groups) {

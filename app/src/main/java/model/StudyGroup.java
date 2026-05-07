@@ -340,9 +340,10 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
     @Override
     public String toString() {
         String res = "";
+        res += GroupParams.NAME.getName() + ": " + name + "\n";
         res += "ID: " + id + "\n";
         res += "Дата создания: " + creationDate.toString() + "\n";
-        res += GroupParams.NAME.getName() + ": " + name + "\n";
+        res += "Создатель: " + authorName + "\n";
         if (coordinates != null)
             res += GroupParams.COORDS.getName() + ": " + coordinates.toString() + "\n";
         if (studentsCount != null)

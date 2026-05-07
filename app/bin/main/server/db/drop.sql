@@ -11,3 +11,7 @@ DROP SEQUENCE IF EXISTS admin_id_seq;
 DROP SEQUENCE IF EXISTS coord_id_seq;
 DROP SEQUENCE IF EXISTS semester_id_seq;
 DROP SEQUENCE IF EXISTS color_id_seq;
+
+DROP INDEX IF EXISTS idx_study_groups_name;
+DROP INDEX IF EXISTS idx_study_groups_owner;
+DROP INDEX IF EXISTS idx_users_login;

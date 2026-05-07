@@ -33,6 +33,8 @@ public class RemoveCommand extends Command<Long, String> {
             return "Неверный формат числа";
         } catch (NullPointerException e) {
             return "Группы с таким id не найдено";
+        } catch (IllegalCallerException e) {
+            return e.getMessage();
         }
     }
 

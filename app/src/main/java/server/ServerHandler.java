@@ -67,7 +67,6 @@ public class ServerHandler {
                 new UpdateCommand(),
                 new RemoveCommand(),
                 new ClearCommand(),
-                // new SaveCommand(),
                 new AddMinCommand(),
                 new RemoveLowerCommand(),
                 new HistoryCommand(),
@@ -97,14 +96,13 @@ public class ServerHandler {
             ServerLogger.log("Пользователь " + request.username() + " выполнил команду " + commandForm.getName());
         } else {
             ServerLogger.log("Пользователь " + request.username() + " не прошёл аутентификацию при попытке выполнить команду " + commandForm.getName());
-            return "Неверный пароль";
+            return "Неверный пароль или имя пользователя";
         }
         history.add(commandForm.getName());
         if (commandForm == CommandFormat.HISTORY) {
             return ((HistoryCommand) command).execute(userData.login(), groupSet, history);
         }
         Object result = executeCommand(userData.login(), command, request.getPayload());
-        ServerLogger.log("Результат команды: " + result);
         return result;
     }
 

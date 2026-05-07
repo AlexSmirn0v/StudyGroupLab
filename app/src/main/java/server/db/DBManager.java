@@ -188,6 +188,49 @@ public class DBManager {
         }
     }
 
+    public StudyGroup getStudyGroupByName(String name) {
+        String sql = """
+                SELECT
+                    sg.id,
+                    sg.creation_date,
+                    sg.name,
+                    c.x,
+                    c.y,
+                    sg.students_count,
+                    sg.transferred_students,
+                    sg.average_mark,
+                    sem.val AS semester_val,
+                    a.name AS admin_name,
+                    a.height AS admin_height,
+                    a.passportID AS admin_passport_id,
+                    clr.val AS admin_hair_color,
+                    u.login AS owner_login
+                FROM study_groups sg
+                INNER JOIN coordinates c ON sg.coordinates_id = c.id
+                LEFT JOIN semesters sem ON sg.semester_id = sem.id
+                LEFT JOIN admins a ON sg.group_admin_id = a.id
+                LEFT JOIN colors clr ON a.hair_color_id = clr.id
+                INNER JOIN users u ON sg.owner_id = u.id
+                WHERE sg.name = ?
+                """;
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                String csv = toCsvLine(rs);
+                StudyGroup group = new GroupBuilder().fromCSVString(csv, ";").buildLoaded();
+                group.setAuthor(rs.getString("owner_login"));
+                return group;
+            }
+        } catch (SQLException | IOException e) {
+            ServerLogger.log("Не получилось подключиться к БД: " + e.getMessage());
+            return null;
+        }
+    }
+
     public DBCollection loadStudyGroups() throws SQLException {
         String sql = """
                 SELECT
@@ -240,9 +283,34 @@ public class DBManager {
             throw new IllegalStateException("Пользователь не найден: " + group.getAuthorName());
         }
         try {
+            // Schema already has UNIQUE(name), but we convert constraint errors into a
+            // user-friendly message.
+            if (studyGroupNameExists(group.getName())) {
+                throw new IllegalArgumentException("Группа с таким именем уже существует");
+            }
             addStudyGroup(group, userData.id());
-        } catch (SQLException | IOException e) {
+        } catch (SQLException e) {
             throw new IllegalStateException("Не получилось сохранить группу в БД: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new IllegalStateException("Не получилось сохранить группу в БД: " + e.getMessage(), e);
+        }
+    }
+
+    private boolean studyGroupNameExists(String name) {
+        if (name == null || name.isBlank()) {
+            return false;
+        }
+        String sql = "SELECT 1 FROM study_groups WHERE name = ? LIMIT 1";
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException | IOException e) {
+            // If check fails, let insert attempt fail and be handled upstream.
+            ServerLogger.log("Не удалось проверить уникальность имени группы: " + e.getMessage());
+            return false;
         }
     }
 

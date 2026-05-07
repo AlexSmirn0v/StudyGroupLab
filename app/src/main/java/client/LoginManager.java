@@ -6,7 +6,7 @@ public class LoginManager {
 
     public void askCredentials(IOHandler ioHandler) {
         ioHandler.print("Введите имя пользователя: ");
-        this.username = ioHandler.readLine();
+        this.username = ioHandler.readLine().trim();
         ioHandler.print("Введите пароль: ");
         this.password = ioHandler.readLine();
     }

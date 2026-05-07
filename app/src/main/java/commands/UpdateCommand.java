@@ -5,6 +5,7 @@ import java.util.Collection;
 import model.GroupParams;
 import model.StudyGroup;
 import model.UpdateRequest;
+import server.db.DBCollection;
 
 /**
  * Команда для обновления элемента коллекции по ID.
@@ -40,9 +41,16 @@ public class UpdateCommand extends Command<UpdateRequest, String> {
             try {
                 GroupParams param = upd.parameter();
                 String value = upd.value();
-                groupToUpdate.edit(param, value);
+                if (collection instanceof DBCollection dbCollection) {
+                    if (!dbCollection.update(groupToUpdate, param, value, username))
+                        throw new IllegalArgumentException("Ошибка в параметре или значении для базы данных");
+                } else {
+                    groupToUpdate.edit(param, value);
+                }
                 break;
             } catch (IllegalArgumentException e) {
+                return e.getMessage() + "\n" + errorMessage;
+            } catch (IllegalCallerException e) {
                 return e.getMessage() + "\n" + errorMessage;
             }
         }

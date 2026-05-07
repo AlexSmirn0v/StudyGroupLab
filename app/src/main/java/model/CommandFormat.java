@@ -10,7 +10,7 @@ public enum CommandFormat implements NamedEnum {
     ADD_MIN("add_min", StudyGroup.class, String.class),
     ASCEND("print_ascending", List.class),
     CLEAR("clear", String.class),
-    EXECUTE("execute", Void.class),
+    EXECUTE("execute_script", Void.class),
     EXIT("exit", Void.class),
     FILTER("filter_contains_name", String.class, List.class),
     HELP("help", String.class),

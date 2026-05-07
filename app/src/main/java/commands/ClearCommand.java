@@ -22,6 +22,6 @@ public class ClearCommand extends Command<Void, String>  {
         } else {
             collection.clear();
         }
-        return "Коллекция очищена.";
+        return "Ваши элементы в коллекции очищены.";
     }
 }

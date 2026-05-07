@@ -7,7 +7,7 @@ CREATE SEQUENCE IF NOT EXISTS color_id_seq START WITH 1 INCREMENT BY 1;
 
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER DEFAULT nextval('users_id_seq') PRIMARY KEY,
-    login VARCHAR(50) NOT NULL UNIQUE,
+    login VARCHAR(50) NOT NULL UNIQUE CHECK (trim(login) <> ''),
     password_hash BYTEA NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS admins (
 
 CREATE TABLE IF NOT EXISTS study_groups (
     id INTEGER DEFAULT nextval('study_groups_id_seq') PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE CHECK (trim(name) <> ''),
     coordinates_id INTEGER NOT NULL REFERENCES coordinates(id),
     creation_date TIMESTAMP NOT NULL,
     students_count BIGINT CHECK (students_count > 0),
@@ -49,5 +49,6 @@ CREATE TABLE IF NOT EXISTS study_groups (
     owner_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS idx_study_groups_name ON study_groups(name);
 CREATE INDEX IF NOT EXISTS idx_study_groups_owner ON study_groups(owner_id);
 CREATE INDEX IF NOT EXISTS idx_users_login ON users(login);

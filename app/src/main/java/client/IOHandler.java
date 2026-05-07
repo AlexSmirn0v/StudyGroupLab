@@ -1,5 +1,6 @@
 package client;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -26,7 +27,9 @@ public class IOHandler implements AutoCloseable {
     }
 
     public void changeSource(InputStream newSource) {
-        close();
+        if (newSource instanceof BufferedInputStream) {
+            close();
+        }
         scanner = new Scanner(newSource, consoleCharset);
     }
 

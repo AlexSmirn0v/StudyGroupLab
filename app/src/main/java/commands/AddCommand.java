@@ -16,10 +16,22 @@ public class AddCommand extends Command<StudyGroup, String> {
 
     @Override
     public String execute(String username, Collection<StudyGroup> collection, StudyGroup group) {
-        if (collection.add(group)) {
-            return "Группа успешно добавлена в коллекцию";
-        } else {
+        String newName = group.getName();
+        for (StudyGroup existing : collection) {
+            if (existing.getName() != null && existing.getName().equals(newName)) {
+                return "Группа с таким именем уже существует";
+            }
+        }
+
+        try {
+            if (collection.add(group)) {
+                return "Группа успешно добавлена в коллекцию";
+            }
             return "Не удалось добавить группу в коллекцию";
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
+        } catch (RuntimeException e) {
+            return "Не удалось добавить группу: " + e.getMessage();
         }
     }
 }
