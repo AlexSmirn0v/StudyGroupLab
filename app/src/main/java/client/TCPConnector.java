@@ -82,7 +82,17 @@ public class TCPConnector implements AutoCloseable{
         }
 
         ByteBuffer responseBuffer = ByteBuffer.allocate(responseLength);
-        readFully(responseBuffer);
+        try {
+            readFully(responseBuffer);
+        } catch (IOException firstError) {
+            reconnect();
+            try {
+                readFully(responseBuffer);
+            } catch (IOException secondError) {
+                secondError.addSuppressed(firstError);
+                throw secondError;
+            }
+        }
 
         try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(responseBuffer.array()))) {
             Object result = input.readObject();
@@ -130,7 +140,7 @@ public class TCPConnector implements AutoCloseable{
             } catch (IOException e) {
                 System.out.println("Сервер недоступен, переподключаюсь, попытка " + i);
                 if (i == RECONNECT_ATTEMPTS) {
-                    throw new IOException("Попытка переподключения не удалась", e);
+                    throw new IOException(" Попытка переподключения не удалась", e);
                 }
                 sleepBeforeRetry();
             }

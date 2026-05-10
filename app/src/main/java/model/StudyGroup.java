@@ -74,12 +74,16 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
             return this.studentsCount.compareTo(other.studentsCount);
         }
 
-        return this.transferredStudents - other.transferredStudents;
+        if (Integer.compare(this.transferredStudents, other.transferredStudents) != 0) {
+            return Integer.compare(this.transferredStudents, other.transferredStudents);
+        }
+
+        return Integer.compare(System.identityHashCode(this), System.identityHashCode(other));
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return id != null ? Long.hashCode(id) : System.identityHashCode(this);
     }
 
     @Override
@@ -89,7 +93,13 @@ final public class StudyGroup implements Comparable<StudyGroup>, Sendable {
         if (o == null || getClass() != o.getClass())
             return false;
         StudyGroup that = (StudyGroup) o;
-        return id.equals(that.getId());
+        if (!Objects.equals(id, that.id)) {
+            return false;
+        }
+        if (id == null) {
+            return this == o;
+        }
+        return true;
     }
 
     /**

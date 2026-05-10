@@ -66,6 +66,7 @@ final public class ClientMain {
                         insideFile = false;
                         scriptHistory.clear();
                         ioHandler.println("Завершение выполнения скрипта. Возвращение к консольному режиму.");
+                        break;
                     } else {
                         keepRunning = false;
                         ioHandler.println("Завершение выполнения программы");
@@ -117,7 +118,7 @@ final public class ClientMain {
                 loginManager.askCredentials(ioHandler);
             } catch (IOException e) {
                 ioHandler.println(e.getClass().getSimpleName() + e.getMessage());
-                ioHandler.println("Отсутствует подключение к серверу");
+                ioHandler.println("Отсутствует подключение к серверу. Повторите попытку ввода команды.");
             } catch (ClassNotFoundException e) {
                 ioHandler.println("Не удалось прочитать ответ сервера: " + e.getMessage());
             }

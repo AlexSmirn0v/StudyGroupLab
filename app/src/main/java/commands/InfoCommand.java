@@ -1,8 +1,6 @@
 package commands;
 
-import java.util.Comparator;
 import java.util.Collection;
-import java.util.Objects;
 import java.time.LocalDateTime;
 
 import model.CommandFormat;
@@ -19,20 +17,24 @@ public class InfoCommand extends Command<Void, String> {
 
     @Override
     public String execute(String username, Collection<StudyGroup> collection, Void empty) {
-        int size = collection.size();
+        int size = 0;
+        long sumParticipants = 0;
+        LocalDateTime minCreation = null;
 
-        long sumParticipants = collection.stream()
-                .map((StudyGroup gr) -> gr.getStudentsCount())
-                .reduce(Long.valueOf(0), (a, b) -> a + b);
-
-        LocalDateTime creationDate = collection.stream()
-                .map((StudyGroup gr) -> gr.getCreationDate())
-                .filter(Objects::nonNull)
-                .min(Comparator.naturalOrder())
-                .orElse(null);
+        for (StudyGroup gr : collection) {
+            size++;
+            Long count = gr.getStudentsCount();
+            if (count != null) {
+                sumParticipants += count;
+            }
+            LocalDateTime created = gr.getCreationDate();
+            if (created != null && (minCreation == null || created.isBefore(minCreation))) {
+                minCreation = created;
+            }
+        }
 
         return ("Количество элементов: " + size + "\nОбщее количество студентов: " + sumParticipants
                 + "\nДата инициализации коллекции: "
-                + (creationDate != null ? creationDate.toString() : "Не установлена"));
+                + (minCreation != null ? minCreation.toString() : "Не установлена"));
     }
 }

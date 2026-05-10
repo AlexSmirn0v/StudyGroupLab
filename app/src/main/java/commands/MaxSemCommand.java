@@ -2,7 +2,6 @@ package commands;
 
 import java.util.Comparator;
 import java.util.Collection;
-import java.util.List;
 
 import model.CommandFormat;
 import model.StudyGroup;
@@ -18,12 +17,14 @@ public class MaxSemCommand extends Command<Void, String> {
 
     @Override
     public String execute(String username, Collection<StudyGroup> collection, Void empty) {
-        List<StudyGroup> sortedList = collection.stream()
-        .sorted(Comparator.comparing(StudyGroup::getSemesterEnum).reversed()).toList();
-        
-        try {
-            return sortedList.get(0).toString();
-        } catch (IndexOutOfBoundsException e) {
+        StudyGroup maxGroup = collection.stream()
+                .max(Comparator.comparing(StudyGroup::getSemesterEnum,
+                        Comparator.nullsFirst(Comparator.naturalOrder())).reversed())
+                .orElse(null);
+
+        if (maxGroup != null) {
+            return maxGroup.toString();
+        } else {
             return "Коллекция пуста";
         }
     }

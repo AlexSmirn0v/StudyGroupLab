@@ -6,7 +6,7 @@ LENGTH = 1000
 sem_options = ["Первый", "Второй", "Четвертый", "Пятый", "Восьмой"]
 admin_options = ["Админ", "Абракадаб", "Ибн Хуссейн", "Гений мысли", "Армстронг", "Ткемали", "Кривин"]
 color_options = ["Красный", "Синий", "Оранжевый", "Коричневый"]
-with open(input("Введите имя файла: "), "w", encoding="cp1125") as f:
+with open(input("Введите имя файла: "), "w", encoding=input("Введите кодировку: ")) as f:
     for i in range(LENGTH):
         f.write("add\n")
         f.write(str(uuid4()) + "\n")
