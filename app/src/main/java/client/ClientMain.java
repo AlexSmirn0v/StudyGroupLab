@@ -32,8 +32,16 @@ final public class ClientMain {
        while (keepRunning) {
             ioHandler.print("> ");
 
-            if (!ioHandler.hasNextLine())
+            if (!ioHandler.hasNextLine()) {
+                if (insideFile) {
+                    ioHandler.changeSource(System.in);
+                    insideFile = false;
+                    scriptHistory.clear();
+                    ioHandler.println("Достигнут конец файла скрипта. Возвращение к консольному режиму.");
+                    continue;
+                }
                 break;
+            }
             
             String line = ioHandler.readLine().trim();
             if (line.isEmpty())

@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import model.CommandFormat;
@@ -23,16 +24,18 @@ public class ServerHandler {
     static final Map<String, Command<?, ?>> commandsMap = Map.copyOf(listCommands());
     static DBCollection groupSet;
     static DBManager dbManager;
-    static Deque<String> history = new ConcurrentLinkedDeque<>() {
+    static ConcurrentHashMap<String, Deque<String>> history = new ConcurrentHashMap<>();
+
+    class ConcurrentHistoryDeque<E> extends ConcurrentLinkedDeque<E> {
         private final int maxSize = 5;
 
         @Override
-        public boolean add(String s) {
+        public boolean add(E e) {
             if (this.size() == maxSize)
                 this.pollFirst();
-            return super.add(s);
+            return super.add(e);
         }
-    };
+    }
 
     public ServerHandler() {
         dbManager = new DBManager();
@@ -41,6 +44,7 @@ public class ServerHandler {
 
     /**
      * Загружает коллекцию из файла.
+     * 
      * @return коллекция учебных групп
      */
     private static DBCollection loadCollection() {
@@ -95,12 +99,13 @@ public class ServerHandler {
         if (userData != null) {
             ServerLogger.log("Пользователь " + request.username() + " выполнил команду " + commandForm.getName());
         } else {
-            ServerLogger.log("Пользователь " + request.username() + " не прошёл аутентификацию при попытке выполнить команду " + commandForm.getName());
+            ServerLogger.log("Пользователь " + request.username()
+                    + " не прошёл аутентификацию при попытке выполнить команду " + commandForm.getName());
             return "Неверный пароль или имя пользователя";
         }
-        history.add(commandForm.getName());
+        history.computeIfAbsent(userData.login(), k -> new ConcurrentHistoryDeque<>()).add(commandForm.getName());
         if (commandForm == CommandFormat.HISTORY) {
-            return ((HistoryCommand) command).execute(userData.login(), groupSet, history);
+            return ((HistoryCommand) command).execute(userData.login(), groupSet, history.get(userData.login()));
         }
         Object result = executeCommand(userData.login(), command, request.getPayload());
         return result;
