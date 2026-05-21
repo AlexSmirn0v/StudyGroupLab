@@ -213,35 +213,31 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
         uiText.clear();
         uiText.putAll(locale.labels);
 
-        setTitle(txt("add"));
-        titleLabel.setText(txt("form_heading"));
+        setTitle(context.getLocalText("add"));
+        titleLabel.setText(context.getLocalText("form_heading"));
         if (authorLabel != null) {
-            authorLabel.setText(txt("form_author") + ": " + authorName);
+            authorLabel.setText(context.getLocalText("form_author") + ": " + authorName);
         }
 
         for (SectionTitle section : sectionTitles) {
-            section.label.setText(txt(section.key));
+            section.label.setText(context.getLocalText(section.key));
         }
         for (FieldRow row : fieldRows) {
             updateFieldLabel(row);
-            row.field.setToolTipText(txt(row.hintKey));
+            row.field.setToolTipText(context.getLocalText("form_input") + context.getLocalText(row.hintKey));
         }
         for (ComboRow row : comboRows) {
             updateFieldLabel(row.label, row.labelKey, row.required);
-            row.combo.setToolTipText(txt(row.hintKey));
+            row.combo.setToolTipText(context.getLocalText("form_input") + context.getLocalText(row.hintKey));
             refreshEnumCombo(row.combo, row.includeSemesters);
         }
 
-        cancelButton.setText(txt("form_cancel"));
-        submitButton.setText(txt("form_submit"));
+        cancelButton.setText(context.getLocalText("form_cancel"));
+        submitButton.setText(context.getLocalText("form_submit"));
         localeButton.setLocaleOption(locale);
 
         revalidate();
         repaint();
-    }
-
-    private String txt(String key) {
-        return uiText.getOrDefault(key, key);
     }
 
     private int addSectionTitle(JPanel form, GridBagConstraints gbc, int row, String key) {
@@ -298,8 +294,8 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
     }
 
     private void updateFieldLabel(JLabel label, String hintKey, boolean required) {
-        String suffix = required ? " *" : "";
-        label.setText("<html>" + txt(hintKey) + "<font color='#c43a3a'>" + suffix + "</font></html>");
+        String suffix = required ? " <font color='#c43a3a'>*</font>" : "";
+        label.setText("<html>" + context.getLocalText("form_input") + context.getLocalText(hintKey) + suffix + "</html>");
         label.setFont(label.getFont().deriveFont(Font.PLAIN, 12f));
         label.setForeground(new Color(55, 62, 72));
     }
@@ -307,7 +303,7 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
     private void refreshEnumCombo(JComboBox<String> combo, boolean semesters) {
         int index = combo.getSelectedIndex();
         combo.removeAllItems();
-        combo.addItem(txt("form_combo_none"));
+        combo.addItem(context.getLocalText("form_combo_none"));
         if (semesters) {
             for (Semester semester : Semester.values()) {
                 combo.addItem(semester.getName());
@@ -353,7 +349,7 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
             StudyGroup group = buildGroup();
             String response = onSubmit.apply(group);
             if (response == null || response.isBlank()) {
-                setStatus(txt("form_error_no_server"), ERROR);
+                setStatus(context.getLocalText("form_error_no_server"), ERROR);
                 return;
             }
             if (response.toLowerCase().contains("успешно")) {
@@ -370,21 +366,21 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
 
     private StudyGroup buildGroup() throws IllegalArgumentException {
         if (authorName.isBlank()) {
-            throw new IllegalArgumentException(txt("form_error_no_author"));
+            throw new IllegalArgumentException(context.getLocalText("form_error_no_author"));
         }
 
         GroupBuilder builder = new GroupBuilder();
 
-        builder.setName(requireText(nameField, txt("form_section_name")));
+        builder.setName(requireText(nameField, context.getLocalText("form_section_name")));
 
-        String coordX = requireText(coordXField, txt("form_coord_x"));
+        String coordX = requireText(coordXField, context.getLocalText("form_coord_x"));
         String coordY = coordYField.getText().trim();
         String coords = coordY.isBlank() ? coordX : coordX + StudyGroup.DELIMITER + coordY;
         builder.setCoords(coords);
 
         builder.setStudentsCount(studentsCountField.getText().trim());
-        builder.setTransferredStudents(requireText(transferredField, txt("form_hint_transferred")));
-        builder.setAverageMark(requireText(averageField, txt("form_hint_average")));
+        builder.setTransferredStudents(requireText(transferredField, context.getLocalText("form_hint_transferred")));
+        builder.setAverageMark(requireText(averageField, context.getLocalText("form_hint_average")));
 
         String semester = selectedComboValue(semesterCombo);
         if (semester != null) {
@@ -407,7 +403,7 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
         String hair = selectedComboValue(adminHairCombo);
 
         if (name.isBlank() || height.isBlank() || passport.isBlank()) {
-            throw new IllegalArgumentException(txt("form_error_admin"));
+            throw new IllegalArgumentException(context.getLocalText("form_error_admin"));
         }
 
         StringBuilder sb = new StringBuilder(name);
@@ -429,7 +425,7 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
     private String requireText(JTextField field, String fieldName) throws IllegalArgumentException {
         String value = field.getText().trim();
         if (value.isBlank()) {
-            throw new IllegalArgumentException(txt("form_error_fill").formatted(fieldName));
+            throw new IllegalArgumentException(context.getLocalText("form_error_fill").formatted(fieldName));
         }
         return value;
     }
@@ -465,24 +461,44 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
         }
         String lower = message.toLowerCase();
         JTextField target = null;
-        if (lower.contains("название") || lower.contains("name") || lower.contains("navn")
-                || (lower.contains("пустая строка") && nameField.getText().isBlank())) {
+        if (lower.contains("Название")) {
             target = nameField;
-        } else if (lower.contains("координат") || lower.contains("coord") || lower.contains("koordinat")) {
+        } else if (lower.contains("x")) {
             target = coordXField;
-        } else if (lower.contains("перевед") || lower.contains("overfør")) {
-            target = transferredField;
-        } else if (lower.contains("оценк") || lower.contains("average") || lower.contains("karakter")) {
-            target = averageField;
-        } else if (lower.contains("студент") && !lower.contains("перевед")) {
+        } else if (lower.contains("y")) {
+            target = coordYField;
+        } else if (lower.contains("количество студентов")) {
             target = studentsCountField;
-        } else if (lower.contains("администратор") || lower.contains("administrator")
-                || lower.contains("паспорт") || lower.contains("pass") || lower.contains("рост")
-                || lower.contains("høyde") || lower.contains("altura")) {
-            target = adminNameField;
-        } else if (lower.contains("семестр") || lower.contains("semester")) {
+        } else if (lower.contains("переведенных студентов")) {
+            target = transferredField;
+        } else if (lower.contains("оценк")) {
+            target = averageField;
+        } else if (lower.contains("семестр")) {
             semesterCombo.requestFocusInWindow();
             return;
+        } else if (lower.contains("имя") && lower.contains("рост")) {
+            for (JTextField field : List.of(adminNameField, adminHeightField, adminPassportField)) {
+                if (field.getText().isBlank()) {
+                    target = field;
+                    break;
+                }
+            }
+        } else if (lower.contains("имя")) {
+            target = adminNameField;
+        } else if (lower.contains("рост")) {
+            target = adminHeightField;
+        } else if (lower.contains("паспорт")) {
+            target = adminPassportField;
+        } else if (lower.contains("волос")) {
+            adminHairCombo.requestFocusInWindow();
+            return;
+        } else if (lower.contains("невозможное число")) {
+            for (JTextField field : List.of(studentsCountField, transferredField, averageField, adminHeightField)) {
+                if (Long.parseLong(field.getText()) <= 0) {
+                    target = field;
+                    break;
+                }
+            }
         }
         if (target != null) {
             markFieldError(target);

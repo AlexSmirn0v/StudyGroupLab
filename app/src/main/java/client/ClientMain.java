@@ -11,6 +11,7 @@ public class ClientMain {
         try (ConnectFacade connector = new ConnectFacade()) {
             installModernBaseStyle();
             AppContext context = new AppContext(connector);
+            context.startPeriodicRefresh(3000);
             SwingUtilities.invokeLater(() -> new MainWindow(context).setVisible(true));
         } catch (IOException e) {
             System.out.println("Не удалось подключиться к серверу");

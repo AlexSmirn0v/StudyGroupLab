@@ -5,6 +5,7 @@ import java.security.UnrecoverableKeyException;
 import java.util.Collection;
 
 import model.CommandMessage;
+import model.StudyGroup;
 
 public class ConnectFacade implements AutoCloseable {
     private final int PORT = 4000;
@@ -27,6 +28,18 @@ public class ConnectFacade implements AutoCloseable {
         } catch (ClassNotFoundException e) {
             return "Не удалось прочитать ответ сервера: " + e.getMessage();
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<StudyGroup> askStudyGroup(CommandMessage message)
+            throws IOException, ClassNotFoundException, UnrecoverableKeyException {
+        connector.sendMessage(message);
+        Object rawResponse = connector.readResponse();
+        if (rawResponse instanceof Collection<?>) {
+            Collection<StudyGroup> groups = (Collection<StudyGroup>) rawResponse;
+            return groups;
+        }
+        return null;
     }
 
     private String parseResponse(Object response) {

@@ -23,6 +23,7 @@ public enum AppLocale {
                         "form_author", "Автор",
                         "form_cancel", "Отмена",
                         "form_submit", "Добавить",
+                        "form_input", "Введите ",
                         "form_combo_none", "— не указан —",
                         "form_section_params", "Параметры группы",
                         "form_section_name", "Название",
@@ -46,7 +47,35 @@ public enum AppLocale {
                         "form_error_fill", "Заполните поле: %s",
                         "form_error_admin",
                         "Для администратора укажите имя, рост и номер паспорта (или оставьте все поля пустыми)",
-                        "form_error_no_server", "Нет ответа от сервера")),
+                        "form_error_no_server", "Нет ответа от сервера",
+                        "table_col_id", "ID",
+                        "table_col_name", "Название",
+                        "table_col_author", "Автор",
+                        "table_col_creation_date", "Дата создания",
+                        "table_col_coords", "Координаты (x;y)",
+                        "table_col_students_count", "Количество студентов",
+                        "table_col_transferred_students", "Переведено студентов",
+                        "table_col_average_mark", "Средняя оценка",
+                        "table_col_semester", "Семестр",
+                        "table_col_admin", "Администратор (имя;рост;паспорт;волосы)",
+                        "table_col_delete", "Удалить",
+                        "table_err_name_empty", "Название не может быть пустым.",
+                        "table_err_author_empty", "Автор не может быть пустым.",
+                        "table_err_coords_empty", "Координаты не могут быть пустыми.",
+                        "table_err_coords_format", "Координаты должны быть в формате x;y или x.",
+                        "table_err_students_gt0", "Количество студентов должно быть больше 0.",
+                        "table_err_transferred_gt0", "Количество переведенных студентов должно быть больше 0.",
+                        "table_err_average_gt0", "Средняя оценка должна быть больше 0.",
+                        "table_err_admin_empty", "Администратор не может быть пустым.",
+                        "table_err_admin_format", "Администратор должен быть в формате имя;рост;паспорт;волосы.",
+                        "table_err_admin_name_empty", "Имя администратора не может быть пустым.",
+                        "table_err_admin_height_gt0", "Рост администратора должен быть больше 0.",
+                        "table_err_admin_passport_empty", "Паспорт администратора не может быть пустым.",
+                        "table_err_invalid_number", "Неверное число для %s.",
+                        "table_dialog_delete_title", "Подтвердите удаление",
+                        "table_dialog_delete_msg", "Удалить эту группу?",
+                        "table_dialog_delete_failed", "Ошибка удаления",
+                        "table_dialog_invalid_value", "Неверное значение")),
         NO(new Locale("no"), mapOf(
                         "tab_table", "Tabell",
                         "tab_graph", "Graf",
@@ -64,6 +93,7 @@ public enum AppLocale {
                         "form_author", "Forfatter",
                         "form_cancel", "Avbryt",
                         "form_submit", "Legg til",
+                        "form_input", "Skriv inn ",
                         "form_combo_none", "— ikke angitt —",
                         "form_section_params", "Gruppeparametere",
                         "form_section_name", "Navn",
@@ -87,7 +117,35 @@ public enum AppLocale {
                         "form_error_fill", "Fyll ut feltet: %s",
                         "form_error_admin",
                         "Oppgi navn, høyde og passnummer for administrator (eller la alle feltene stå tomme)",
-                        "form_error_no_server", "Ingen svar fra serveren")),
+                        "form_error_no_server", "Ingen svar fra serveren",
+                        "table_col_id", "ID",
+                        "table_col_name", "Navn",
+                        "table_col_author", "Forfatter",
+                        "table_col_creation_date", "Opprettelsesdato",
+                        "table_col_coords", "Koordinater (x;y)",
+                        "table_col_students_count", "Antall studenter",
+                        "table_col_transferred_students", "Overførte studenter",
+                        "table_col_average_mark", "Gjennomsnittlig karaktere",
+                        "table_col_semester", "Semester",
+                        "table_col_admin", "Administrator (navn;høyde;passnummer;hårfarge)",
+                        "table_col_delete", "Slett",
+                        "table_err_name_empty", "Navn kan ikke være tomt.",
+                        "table_err_author_empty", "Forfatter kan ikke være tom.",
+                        "table_err_coords_empty", "Koordinater kan ikke være tomme.",
+                        "table_err_coords_format", "Koordinater må være i formatet x;y eller x.",
+                        "table_err_students_gt0", "Antall studenter må være større enn 0.",
+                        "table_err_transferred_gt0", "Antall overførte studenter må være større enn 0.",
+                        "table_err_average_gt0", "Gjennomsnittlig karakter må være større enn 0.",
+                        "table_err_admin_empty", "Administrator kan ikke være tom.",
+                        "table_err_admin_format", "Administrator må være i formatet navn;høyde;passnummer;hårfarge.",
+                        "table_err_admin_name_empty", "Administratorens navn kan ikke være tomt.",
+                        "table_err_admin_height_gt0", "Administratorens høyde må være større enn 0.",
+                        "table_err_admin_passport_empty", "Administratorens passnummer kan ikke være tomt.",
+                        "table_err_invalid_number", "Ugyldig tall for %s.",
+                        "table_dialog_delete_title", "Bekreft sletting",
+                        "table_dialog_delete_msg", "Slett denne gruppen?",
+                        "table_dialog_delete_failed", "Sletting mislyktes",
+                        "table_dialog_invalid_value", "Ugyldig verdi")),
         DA(new Locale("da"), mapOf(
                         "tab_table", "Tabel",
                         "tab_graph", "Graf",
@@ -105,6 +163,7 @@ public enum AppLocale {
                         "form_author", "Forfatter",
                         "form_cancel", "Annuller",
                         "form_submit", "Tilføj",
+                        "form_input", "Indtast ",
                         "form_combo_none", "— ikke angivet —",
                         "form_section_params", "Gruppeparametre",
                         "form_section_name", "Navn",
@@ -128,8 +187,36 @@ public enum AppLocale {
                         "form_error_fill", "Udfyld feltet: %s",
                         "form_error_admin",
                         "Angiv navn, højde og pasnummer for administrator (eller lad alle felter være tomme)",
-                        "form_error_no_server", "Intet svar fra serveren")),
-        ES_CR(new Locale("es", "CR"), mapOf(
+                        "form_error_no_server", "Intet svar fra serveren",
+                        "table_col_id", "ID",
+                        "table_col_name", "Navn",
+                        "table_col_author", "Forfatter",
+                        "table_col_creation_date", "Oprettelsesdato",
+                        "table_col_coords", "Koordinater (x;y)",
+                        "table_col_students_count", "Antal studerende",
+                        "table_col_transferred_students", "Overførte studerende",
+                        "table_col_average_mark", "Gennemsnitlig karakter",
+                        "table_col_semester", "Semester",
+                        "table_col_admin", "Administrator (navn;højde;pasnummer;hårfarve)",
+                        "table_col_delete", "Slet",
+                        "table_err_name_empty", "Navn kan ikke være tomt.",
+                        "table_err_author_empty", "Forfatter kan ikke være tom.",
+                        "table_err_coords_empty", "Koordinater kan ikke være tomme.",
+                        "table_err_coords_format", "Koordinater skal være i formatet x;y eller x.",
+                        "table_err_students_gt0", "Antal studerende skal være større end 0.",
+                        "table_err_transferred_gt0", "Antal overførte studerende skal være større end 0.",
+                        "table_err_average_gt0", "Gennemsnitlig karakter skal være større end 0.",
+                        "table_err_admin_empty", "Administrator kan ikke være tom.",
+                        "table_err_admin_format", "Administrator skal være i formatet navn;højde;pasnummer;hårfarve.",
+                        "table_err_admin_name_empty", "Administratorens navn kan ikke være tomt.",
+                        "table_err_admin_height_gt0", "Administratorens højde skal være større end 0.",
+                        "table_err_admin_passport_empty", "Administratorens pasnummer kan ikke være tomt.",
+                        "table_err_invalid_number", "Ugyldigt tal for %s.",
+                        "table_dialog_delete_title", "Bekræft sletning",
+                        "table_dialog_delete_msg", "Slet denne gruppe?",
+                        "table_dialog_delete_failed", "Sletning mislykkedes",
+                        "table_dialog_invalid_value", "Ugyldig værdi")),
+        ES_CR(new Locale("es","CR"), mapOf(
                         "tab_table", "Tabla",
                         "tab_graph", "Gráfico",
                         "search", "Buscar",
@@ -146,6 +233,7 @@ public enum AppLocale {
                         "form_author", "Autor",
                         "form_cancel", "Cancelar",
                         "form_submit", "Agregar",
+                        "form_input", "Ingresar ",
                         "form_combo_none", "— no indicado —",
                         "form_section_params", "Parámetros del grupo",
                         "form_section_name", "Nombre",
@@ -169,7 +257,36 @@ public enum AppLocale {
                         "form_error_fill", "Complete el campo: %s",
                         "form_error_admin",
                         "Indique nombre, altura y pasaporte del administrador (o deje todos los campos vacíos)",
-                        "form_error_no_server", "Sin respuesta del servidor"));
+                        "form_error_no_server", "Sin respuesta del servidor",
+                        "table_col_id", "ID",
+                        "table_col_name", "Nombre",
+                        "table_col_author", "Autor",
+                        "table_col_creation_date", "Fecha de creación",
+                        "table_col_coords", "Coordenadas (x;y)",
+                        "table_col_students_count", "Cantidad de estudiantes",
+                        "table_col_transferred_students", "Estudiantes transferidos",
+                        "table_col_average_mark", "Calificación promedio",
+                        "table_col_semester", "Semestre",
+                        "table_col_admin", "Administrador (nombre;altura;pasaporte;cabello)",
+                        "table_col_delete", "Eliminar",
+                        "table_err_name_empty", "El nombre no puede estar vacío.",
+                        "table_err_author_empty", "El autor no puede estar vacío.",
+                        "table_err_coords_empty", "Las coordenadas no pueden estar vacías.",
+                        "table_err_coords_format", "Las coordenadas deben estar en formato x;y o x.",
+                        "table_err_students_gt0", "La cantidad de estudiantes debe ser mayor que 0.",
+                        "table_err_transferred_gt0", "La cantidad de estudiantes transferidos debe ser mayor que 0.",
+                        "table_err_average_gt0", "La calificación promedio debe ser mayor que 0.",
+                        "table_err_admin_empty", "El administrador no puede estar vacío.",
+                        "table_err_admin_format",
+                        "El administrador debe estar en formato nombre;altura;pasaporte;cabello.",
+                        "table_err_admin_name_empty", "El nombre del administrador no puede estar vacío.",
+                        "table_err_admin_height_gt0", "La altura del administrador debe ser mayor que 0.",
+                        "table_err_admin_passport_empty", "El pasaporte del administrador no puede estar vacío.",
+                        "table_err_invalid_number", "Número inválido para %s.",
+                        "table_dialog_delete_title", "Confirmar eliminación",
+                        "table_dialog_delete_msg", "¿Eliminar este grupo?",
+                        "table_dialog_delete_failed", "Error al eliminar",
+                        "table_dialog_invalid_value", "Valor inválido"));
 
         public final Locale locale;
         public final Map<String, String> labels;
@@ -194,15 +311,16 @@ public enum AppLocale {
                 }
                 return RU;
         }
+
         public static void cycleLocale(Localizable localizable, AppLocale current) {
-        AppLocale next = switch (current) {
-            case RU -> AppLocale.NO;
-            case NO -> AppLocale.DA;
-            case DA -> AppLocale.ES_CR;
-            case ES_CR -> AppLocale.RU;
-        };
-        localizable.applyLocale(next);
-    }
+                AppLocale next = switch (current) {
+                        case RU -> AppLocale.NO;
+                        case NO -> AppLocale.DA;
+                        case DA -> AppLocale.ES_CR;
+                        case ES_CR -> AppLocale.RU;
+                };
+                localizable.applyLocale(next);
+        }
 
         public interface Localizable {
                 public void applyLocale(AppLocale locale);

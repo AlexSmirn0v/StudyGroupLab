@@ -2,10 +2,10 @@ package client;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.table.DefaultTableModel;
 
 import client.components.AppButtons;
 import client.components.GraphPanel;
+import client.components.TablePanel;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -34,6 +34,7 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
     private AppButtons.RoundLocaleButton localeButton;
 
     private final GraphPanel graphCanvas = new GraphPanel();
+    private TablePanel tablePanel;
 
     private final AppContext context;
 
@@ -124,29 +125,21 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
     }
 
     private JComponent buildTableTab() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-        panel.setBackground(new Color(246, 248, 252));
+        tablePanel = new TablePanel(context);
 
-        DefaultTableModel model = new DefaultTableModel(
-                new Object[] { "Column 1", "Column 2", "Column 3", "Column 4" }, 0);
+        SwingUtilities.invokeLater(() -> {
+            try {
+                tablePanel.refreshFromServer();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Failed to load data from server: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
-        JTable table = new JTable(model);
-        table.setRowHeight(28);
-        table.setShowGrid(true);
-        table.setGridColor(new Color(230, 235, 242));
-        table.setFillsViewportHeight(true);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        JTableHeaderStyler.style(table);
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(new LineBorder(new Color(214, 221, 233), 1, true));
-        scrollPane.getViewport().setBackground(Color.WHITE);
-
-        panel.add(scrollPane, BorderLayout.CENTER);
-        return panel;
+        return tablePanel;
     }
 
     private JComponent buildGraphTab() {
@@ -221,6 +214,9 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
         localeButton.setLocaleOption(locale);
 
         graphCanvas.repaint();
+        if (tablePanel != null) {
+            tablePanel.applyLocale(locale);
+        }
     }
 
     private void repaintActionButtons() {
@@ -230,6 +226,24 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
 
         revalidate();
         repaint();
+    }
+
+    /**
+     * Refreshes the table data from the server.
+     * Can be called from action handlers or menu items.
+     */
+    public void refreshTableData() {
+        if (tablePanel != null) {
+            try {
+                tablePanel.refreshFromServer();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Failed to refresh data: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     static class HintTextField extends JTextField {
