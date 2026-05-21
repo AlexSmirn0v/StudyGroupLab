@@ -1,11 +1,11 @@
-package client;
+package client.components;
 
 import javax.swing.*;
 import javax.swing.border.*;
 
-import client.components.AppButtons;
-import client.components.GraphPanel;
-import client.components.TablePanel;
+import client.ActionCommand;
+import client.AppContext;
+import client.AppLocale;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;

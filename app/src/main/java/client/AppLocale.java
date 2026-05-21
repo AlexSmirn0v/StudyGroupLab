@@ -75,7 +75,13 @@ public enum AppLocale {
                         "table_dialog_delete_title", "Подтвердите удаление",
                         "table_dialog_delete_msg", "Удалить эту группу?",
                         "table_dialog_delete_failed", "Ошибка удаления",
-                        "table_dialog_invalid_value", "Неверное значение")),
+                        "table_dialog_invalid_value", "Неверное значение",
+                        "login_title", "Вход в систему",
+                        "login_button", "Вход",
+                        "login_error", "Ошибка aутентификации: Неверный пароль или имя пользователя",
+                        "login_hello", "Добро пожаловать!",
+                        "login_username", "имя пользователя",
+                        "login_password", "пароль")),
         NO(new Locale("no"), mapOf(
                         "tab_table", "Tabell",
                         "tab_graph", "Graf",
@@ -145,7 +151,13 @@ public enum AppLocale {
                         "table_dialog_delete_title", "Bekreft sletting",
                         "table_dialog_delete_msg", "Slett denne gruppen?",
                         "table_dialog_delete_failed", "Sletting mislyktes",
-                        "table_dialog_invalid_value", "Ugyldig verdi")),
+                        "table_dialog_invalid_value", "Ugyldig verdi",
+                        "login_title", "Logg inn",
+                        "login_button", "Logg inn",
+                        "login_error", "Autentiseringsfeil: Feil passord eller brukernavn",
+                        "login_hello", "Velkommen!",
+                        "login_username", "brukernavn",
+                        "login_password", "passord")),
         DA(new Locale("da"), mapOf(
                         "tab_table", "Tabel",
                         "tab_graph", "Graf",
@@ -215,8 +227,14 @@ public enum AppLocale {
                         "table_dialog_delete_title", "Bekræft sletning",
                         "table_dialog_delete_msg", "Slet denne gruppe?",
                         "table_dialog_delete_failed", "Sletning mislykkedes",
-                        "table_dialog_invalid_value", "Ugyldig værdi")),
-        ES_CR(new Locale("es","CR"), mapOf(
+                        "table_dialog_invalid_value", "Ugyldig værdi",
+                        "login_title", "Login",
+                        "login_button", "Login",
+                        "login_error", "Godkendelsesfejl: Forkert adgangskode eller brugernavn",
+                        "login_hello", "Velkommen!",
+                        "login_username", "brugernavn",
+                        "login_password", "password")),
+        ES_CR(new Locale("es", "CR"), mapOf(
                         "tab_table", "Tabla",
                         "tab_graph", "Gráfico",
                         "search", "Buscar",
@@ -286,7 +304,13 @@ public enum AppLocale {
                         "table_dialog_delete_title", "Confirmar eliminación",
                         "table_dialog_delete_msg", "¿Eliminar este grupo?",
                         "table_dialog_delete_failed", "Error al eliminar",
-                        "table_dialog_invalid_value", "Valor inválido"));
+                        "table_dialog_invalid_value", "Valor inválido",
+                        "login_title", "Iniciar sesión",
+                        "login_button", "Iniciar sesión",
+                        "login_error", "Error de autenticación: Contraseña o nombre de usuario incorrectos",
+                        "login_hello", "¡Bienvenido!",
+                        "login_username", "nombre de usuario",
+                        "login_password", "contraseña"));
 
         public final Locale locale;
         public final Map<String, String> labels;

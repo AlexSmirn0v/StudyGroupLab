@@ -9,17 +9,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.function.Function;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,7 +26,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.border.MatteBorder;
 
 import client.AppLocale;
 import client.AppContext;
@@ -37,51 +33,31 @@ import model.GroupBuilder;
 import model.Semester;
 import model.StudyGroup;
 
-public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
-    private static final Color BG = new Color(246, 248, 252);
-    private static final Color FIELD_BORDER = new Color(200, 208, 220);
-    private static final Color SCROLL_BORDER = new Color(214, 221, 233);
-    private static final Color MUTED = new Color(100, 108, 120);
-    private static final Color ERROR = new Color(196, 58, 58);
-    private static final Color SUCCESS = new Color(36, 128, 72);
-
+public class GroupAddFrame extends AppFrame {
     private final String authorName;
     private final Function<StudyGroup, String> onSubmit;
-    private final AppContext context;
 
-    private final Map<String, String> uiText = new HashMap<>();
-
-    private JLabel titleLabel, authorLabel, statusLabel;
+    private JLabel titleLabel = new JLabel();
+    private JLabel authorLabel = new JLabel();
     private JButton cancelButton, submitButton;
-    private final List<SectionTitle> sectionTitles = new ArrayList<>();
-    private final List<FieldRow> fieldRows = new ArrayList<>();
-    private final List<ComboRow> comboRows = new ArrayList<>();
 
     private JTextField nameField, coordXField, coordYField, studentsCountField, transferredField, averageField,
             adminNameField, adminHeightField, adminPassportField;
     private JComboBox<String> semesterCombo, adminHairCombo;
 
     public GroupAddFrame(AppContext context, Function<StudyGroup, String> onSubmit) {
-        super();
+        super(context);
         this.authorName = context.getUsername();
         this.onSubmit = onSubmit == null ? group -> null : onSubmit;
-        this.context = context;
 
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setMinimumSize(new Dimension(440, 380));
         setSize(520, 580);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout(0, 0));
 
-        add(buildHeader(), BorderLayout.NORTH);
-        add(buildScrollableForm(), BorderLayout.CENTER);
-        add(buildFooter(), BorderLayout.SOUTH);
-
-        applyLocale(context.getLocale());
-        context.registerLocalizable(this);
+        initComponents();
     }
 
-    private JComponent buildHeader() {
+    @Override
+    JComponent buildHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(true);
         header.setBorder(BorderFactory.createEmptyBorder(14, 16, 6, 16));
@@ -105,7 +81,8 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
         return header;
     }
 
-    private JComponent buildScrollableForm() {
+    @Override
+    JComponent buildForm() {
         JPanel form = new JPanel(new GridBagLayout());
         form.setBackground(Color.WHITE);
         form.setBorder(BorderFactory.createCompoundBorder(
@@ -150,7 +127,8 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
         return scroll;
     }
 
-    private JComponent buildFooter() {
+    @Override
+    JComponent buildFooter() {
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(true);
         footer.setBackground(BG);
@@ -185,11 +163,9 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
             context.setLocale(locale);
         Locale.setDefault(locale.locale);
 
-        uiText.clear();
-        uiText.putAll(locale.labels);
-
         setTitle(context.getLocalText("add"));
-        titleLabel.setText(context.getLocalText("form_heading"));
+        if (titleLabel != null)
+            titleLabel.setText(context.getLocalText("form_heading"));
         if (authorLabel != null) {
             authorLabel.setText(context.getLocalText("form_author") + ": " + authorName);
         }
@@ -206,73 +182,13 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
             row.combo.setToolTipText(context.getLocalText("form_input") + context.getLocalText(row.hintKey));
             refreshEnumCombo(row.combo, row.includeSemesters);
         }
-
-        cancelButton.setText(context.getLocalText("form_cancel"));
-        submitButton.setText(context.getLocalText("form_submit"));
+        if (cancelButton != null)
+            cancelButton.setText(context.getLocalText("form_cancel"));
+        if (submitButton != null)
+            submitButton.setText(context.getLocalText("form_submit"));
 
         revalidate();
         repaint();
-    }
-
-    private int addSectionTitle(JPanel form, GridBagConstraints gbc, int row, String key) {
-        gbc.gridy = row;
-        JLabel label = new JLabel();
-        label.setFont(label.getFont().deriveFont(Font.BOLD, 13f));
-        label.setForeground(new Color(40, 48, 58));
-        label.setBorder(BorderFactory.createCompoundBorder(
-                new MatteBorder(row == 0 ? 0 : 8, 0, 0, 0, new Color(230, 235, 242)),
-                new EmptyBorder(row == 0 ? 0 : 10, 0, 4, 0)));
-        form.add(label, gbc);
-        sectionTitles.add(new SectionTitle(label, key));
-        return row + 1;
-    }
-
-    private JTextField addFieldRow(JPanel form, GridBagConstraints gbc, int row, String hintKey, boolean required) {
-        gbc.gridy = row;
-        JPanel rowPanel = new JPanel(new BorderLayout(0, 4));
-        rowPanel.setOpaque(false);
-
-        JLabel label = new JLabel();
-        rowPanel.add(label, BorderLayout.NORTH);
-
-        JTextField field = new JTextField();
-        styleField(field);
-        rowPanel.add(field, BorderLayout.CENTER);
-
-        form.add(rowPanel, gbc);
-        fieldRows.add(new FieldRow(label, field, hintKey, required));
-        return field;
-    }
-
-    private JComboBox<String> addComboRow(JPanel form, GridBagConstraints gbc, int row, String labelKey,
-            String hintKey, boolean includeSemesters) {
-        gbc.gridy = row;
-        JPanel rowPanel = new JPanel(new BorderLayout(0, 4));
-        rowPanel.setOpaque(false);
-
-        JLabel label = new JLabel();
-        rowPanel.add(label, BorderLayout.NORTH);
-
-        JComboBox<String> combo = new JComboBox<>();
-        combo.setEditable(false);
-        styleCombo(combo);
-        rowPanel.add(combo, BorderLayout.CENTER);
-
-        form.add(rowPanel, gbc);
-        comboRows.add(new ComboRow(label, combo, labelKey, hintKey, false, includeSemesters));
-        return combo;
-    }
-
-    private void updateFieldLabel(FieldRow row) {
-        updateFieldLabel(row.label, row.hintKey, row.required);
-    }
-
-    private void updateFieldLabel(JLabel label, String hintKey, boolean required) {
-        String suffix = required ? " <font color='#c43a3a'>*</font>" : "";
-        label.setText(
-                "<html>" + context.getLocalText("form_input") + context.getLocalText(hintKey) + suffix + "</html>");
-        label.setFont(label.getFont().deriveFont(Font.PLAIN, 12f));
-        label.setForeground(new Color(55, 62, 72));
     }
 
     private void refreshEnumCombo(JComboBox<String> combo, boolean semesters) {
@@ -289,33 +205,6 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
             }
         }
         combo.setSelectedIndex(index >= 0 && index < combo.getItemCount() ? index : 0);
-    }
-
-    private void styleField(JTextField field) {
-        field.setOpaque(true);
-        field.setBackground(Color.WHITE);
-        field.setForeground(new Color(30, 35, 40));
-        field.setBorder(new CompoundBorder(
-                new LineBorder(FIELD_BORDER, 1, true),
-                new EmptyBorder(6, 10, 6, 10)));
-        field.setPreferredSize(new Dimension(0, 32));
-    }
-
-    private void styleCombo(JComboBox<?> combo) {
-        combo.setBackground(Color.WHITE);
-        combo.setBorder(new CompoundBorder(
-                new LineBorder(FIELD_BORDER, 1, true),
-                new EmptyBorder(4, 8, 4, 8)));
-        combo.setPreferredSize(new Dimension(0, 32));
-    }
-
-    private void styleFlatButton(JButton button) {
-        button.setFocusPainted(false);
-        button.setBackground(Color.WHITE);
-        button.setBorder(new CompoundBorder(
-                new LineBorder(new Color(188, 197, 209), 1, true),
-                new EmptyBorder(8, 16, 8, 16)));
-        button.setPreferredSize(new Dimension(100, 36));
     }
 
     private void submitForm() {
@@ -397,27 +286,6 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
                 || selectedComboValue(adminHairCombo) != null;
     }
 
-    private String requireText(JTextField field, String fieldName) throws IllegalArgumentException {
-        String value = field.getText().trim();
-        if (value.isBlank()) {
-            throw new IllegalArgumentException(context.getLocalText("form_error_fill").formatted(fieldName));
-        }
-        return value;
-    }
-
-    private static String selectedComboValue(JComboBox<String> combo) {
-        if (combo == null || combo.getSelectedIndex() <= 0) {
-            return null;
-        }
-        Object item = combo.getSelectedItem();
-        return item == null ? null : item.toString();
-    }
-
-    private void setStatus(String message, Color color) {
-        statusLabel.setText(message == null ? " " : message);
-        statusLabel.setForeground(color);
-    }
-
     private void clearFieldErrors() {
         JTextField[] fields = {
                 nameField, coordXField, coordYField, studentsCountField,
@@ -485,48 +353,5 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
         field.setBorder(new CompoundBorder(
                 new LineBorder(ERROR, 1, true),
                 new EmptyBorder(6, 10, 6, 10)));
-    }
-
-    private static final class SectionTitle {
-        final JLabel label;
-        final String key;
-
-        SectionTitle(JLabel label, String key) {
-            this.label = label;
-            this.key = key;
-        }
-    }
-
-    private static final class FieldRow {
-        final JLabel label;
-        final JTextField field;
-        final String hintKey;
-        final boolean required;
-
-        FieldRow(JLabel label, JTextField field, String hintKey, boolean required) {
-            this.label = label;
-            this.field = field;
-            this.hintKey = hintKey;
-            this.required = required;
-        }
-    }
-
-    private static final class ComboRow {
-        final JLabel label;
-        final JComboBox<String> combo;
-        final String labelKey;
-        final String hintKey;
-        final boolean required;
-        final boolean includeSemesters;
-
-        ComboRow(JLabel label, JComboBox<String> combo, String labelKey, String hintKey, boolean required,
-                boolean includeSemesters) {
-            this.label = label;
-            this.combo = combo;
-            this.labelKey = labelKey;
-            this.hintKey = hintKey;
-            this.required = required;
-            this.includeSemesters = includeSemesters;
-        }
     }
 }

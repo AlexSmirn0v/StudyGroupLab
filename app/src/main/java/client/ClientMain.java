@@ -6,13 +6,15 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
+import client.components.LoginFrame;
+
 public class ClientMain {
     public static void main(String[] args) {
         try (ConnectFacade connector = new ConnectFacade()) {
             installModernBaseStyle();
             AppContext context = new AppContext(connector);
             context.startPeriodicRefresh(3000);
-            SwingUtilities.invokeLater(() -> new MainWindow(context).setVisible(true));
+            SwingUtilities.invokeLater(() -> new LoginFrame(context).setVisible(true));
         } catch (IOException e) {
             System.out.println("Не удалось подключиться к серверу");
         }
