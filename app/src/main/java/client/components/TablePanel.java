@@ -21,8 +21,6 @@ import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TablePanel extends JPanel implements AppContext.Updatable, AppLocale.Localizable {
     private final TableModel tableModel;
@@ -30,7 +28,6 @@ public class TablePanel extends JPanel implements AppContext.Updatable, AppLocal
     private final TableRowSorter<TableModel> sorter;
 
     private final AppContext appContext;
-    private final Map<String, String> uiText = new HashMap<>();
 
     /**
      * Creates a TablePanel with data from AppContext.
@@ -42,7 +39,6 @@ public class TablePanel extends JPanel implements AppContext.Updatable, AppLocal
         super(new BorderLayout());
         this.appContext = appContext;
         setBorder(new EmptyBorder(0, 0, 0, 0));
-
         applyLocale(appContext.getLocale());
 
         tableModel = new TableModel(appContext);
@@ -57,10 +53,8 @@ public class TablePanel extends JPanel implements AppContext.Updatable, AppLocal
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
-
-        if (appContext != null) {
-            appContext.registerUpdatable(this);
-        }
+        appContext.registerLocalizable(this);
+        appContext.registerUpdatable(this);
     }
 
     public JTable getTable() {

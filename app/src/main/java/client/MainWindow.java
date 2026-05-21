@@ -55,6 +55,7 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
         add(buildActionsSidebar(), BorderLayout.EAST);
 
         applyLocale(context.getLocale());
+
     }
 
     private JComponent buildTopBar() {
@@ -199,7 +200,8 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
 
     @Override
     public void applyLocale(AppLocale locale) {
-        context.setLocale(locale);
+        if (!locale.equals(context.getLocale()))
+            context.setLocale(locale);
         Locale.setDefault(locale.locale);
 
         uiText.clear();

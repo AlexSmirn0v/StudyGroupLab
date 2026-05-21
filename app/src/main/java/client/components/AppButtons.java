@@ -90,7 +90,7 @@ public class AppButtons {
             setPreferredSize(new Dimension(34, 34));
             setMinimumSize(new Dimension(34, 34));
             setMaximumSize(new Dimension(34, 34));
-            setToolTipText("Switch locale");
+            setToolTipText("Переключение между языками");
         }
 
         public void setLocaleOption(AppLocale localeOption) {

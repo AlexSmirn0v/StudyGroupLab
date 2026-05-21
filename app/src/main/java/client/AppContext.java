@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import client.AppLocale.Localizable;
+
 public class AppContext {
     private final ConnectFacade connectFacade;
     private AppLocale locale = AppLocale.findLocale(Locale.getDefault());
@@ -18,6 +20,7 @@ public class AppContext {
     private String username = "Anonymous";
     private String password = "";
     private final List<Updatable> updatables = new ArrayList<>();
+    private final List<Localizable> localizables = new ArrayList<>();
 
     public AppContext(ConnectFacade connectFacade) {
         this.connectFacade = connectFacade;
@@ -51,6 +54,7 @@ public class AppContext {
 
     public void setLocale(AppLocale locale) {
         this.locale = locale;
+        notifyLocale();
     }
 
     public Color getColor(String key) {
@@ -79,30 +83,31 @@ public class AppContext {
         this.password = password;
     }
 
-    /**
-     * Registers an updatable component (e.g., TablePanel) to receive notifications.
-     * 
-     * @param updatable the component to register
-     */
     public void registerUpdatable(Updatable updatable) {
         updatables.add(updatable);
     }
 
-    /**
-     * Removes an updatable component from the registry.
-     * 
-     * @param updatable the component to unregister
-     */
     public void unregisterUpdatable(Updatable updatable) {
         updatables.remove(updatable);
     }
 
-    /**
-     * Notifies all registered updatable components to refresh their data.
-     */
     public void notifyUpdate() {
         for (Updatable updatable : updatables) {
             updatable.update();
+        }
+    }
+
+    public void registerLocalizable(Localizable localizable) {
+        localizables.add(localizable);
+    }
+
+    public void unregisterLocalizable(Localizable localizable) {
+        localizables.remove(localizable);
+    }
+
+    public void notifyLocale() {
+        for (Localizable localizable : localizables) {
+            localizable.applyLocale(this.locale);
         }
     }
 

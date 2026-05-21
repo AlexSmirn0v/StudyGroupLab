@@ -33,8 +33,6 @@ import javax.swing.border.MatteBorder;
 
 import client.AppLocale;
 import client.AppContext;
-import client.components.AppButtons.RoundLocaleButton;
-import client.components.AppButtons.RoundedButton;
 import model.GroupBuilder;
 import model.Semester;
 import model.StudyGroup;
@@ -53,28 +51,15 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
 
     private final Map<String, String> uiText = new HashMap<>();
 
-    private JLabel titleLabel;
-    private JLabel authorLabel;
-    private RoundLocaleButton localeButton;
-    private JButton cancelButton;
-    private RoundedButton submitButton;
+    private JLabel titleLabel, authorLabel, statusLabel;
+    private JButton cancelButton, submitButton;
     private final List<SectionTitle> sectionTitles = new ArrayList<>();
     private final List<FieldRow> fieldRows = new ArrayList<>();
     private final List<ComboRow> comboRows = new ArrayList<>();
 
-    private JTextField nameField;
-    private JTextField coordXField;
-    private JTextField coordYField;
-    private JTextField studentsCountField;
-    private JTextField transferredField;
-    private JTextField averageField;
-    private JComboBox<String> semesterCombo;
-    private JTextField adminNameField;
-    private JTextField adminHeightField;
-    private JTextField adminPassportField;
-    private JComboBox<String> adminHairCombo;
-
-    private JLabel statusLabel;
+    private JTextField nameField, coordXField, coordYField, studentsCountField, transferredField, averageField,
+            adminNameField, adminHeightField, adminPassportField;
+    private JComboBox<String> semesterCombo, adminHairCombo;
 
     public GroupAddFrame(AppContext context, Function<StudyGroup, String> onSubmit) {
         super();
@@ -87,19 +72,18 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
         setSize(520, 580);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 0));
-        // getContentPane().setBackground(BG);
 
         add(buildHeader(), BorderLayout.NORTH);
         add(buildScrollableForm(), BorderLayout.CENTER);
         add(buildFooter(), BorderLayout.SOUTH);
 
         applyLocale(context.getLocale());
+        context.registerLocalizable(this);
     }
 
     private JComponent buildHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(true);
-        // header.setBackground(BG);
         header.setBorder(BorderFactory.createEmptyBorder(14, 16, 6, 16));
 
         JPanel left = new JPanel(new BorderLayout(0, 2));
@@ -112,19 +96,11 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
 
         if (!authorName.isBlank()) {
             authorLabel = new JLabel();
-            // authorLabel.setForeground(MUTED);
             authorLabel.setFont(authorLabel.getFont().deriveFont(Font.PLAIN, 12f));
             left.add(authorLabel, BorderLayout.SOUTH);
         }
 
         header.add(left, BorderLayout.WEST);
-
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        right.setOpaque(false);
-        localeButton = new RoundLocaleButton();
-        localeButton.addActionListener(e -> AppLocale.cycleLocale(this, context.getLocale()));
-        right.add(localeButton);
-        header.add(right, BorderLayout.EAST);
 
         return header;
     }
@@ -192,10 +168,8 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
         cancelButton = new JButton();
         styleFlatButton(cancelButton);
         cancelButton.addActionListener(e -> dispose());
-
-        submitButton = new RoundedButton();
-        submitButton.setPreferredSize(new Dimension(140, 40));
-        submitButton.setMinimumSize(new Dimension(120, 40));
+        submitButton = new JButton();
+        styleFlatButton(submitButton);
         submitButton.addActionListener(e -> submitForm());
 
         buttons.add(cancelButton);
@@ -207,7 +181,8 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
 
     @Override
     public void applyLocale(AppLocale locale) {
-        context.setLocale(locale);
+        if (!locale.equals(context.getLocale()))
+            context.setLocale(locale);
         Locale.setDefault(locale.locale);
 
         uiText.clear();
@@ -234,7 +209,6 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
 
         cancelButton.setText(context.getLocalText("form_cancel"));
         submitButton.setText(context.getLocalText("form_submit"));
-        localeButton.setLocaleOption(locale);
 
         revalidate();
         repaint();
@@ -295,7 +269,8 @@ public class GroupAddFrame extends JFrame implements AppLocale.Localizable {
 
     private void updateFieldLabel(JLabel label, String hintKey, boolean required) {
         String suffix = required ? " <font color='#c43a3a'>*</font>" : "";
-        label.setText("<html>" + context.getLocalText("form_input") + context.getLocalText(hintKey) + suffix + "</html>");
+        label.setText(
+                "<html>" + context.getLocalText("form_input") + context.getLocalText(hintKey) + suffix + "</html>");
         label.setFont(label.getFont().deriveFont(Font.PLAIN, 12f));
         label.setForeground(new Color(55, 62, 72));
     }
