@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="https://logging.apache.org/xml/ns"
+               xsi:schemaLocation="
+                       https://logging.apache.org/xml/ns
+                       https://logging.apache.org/xml/ns/log4j-config-2.xsd">
+
+  <Properties>
+    <Property name="LOG_CHARSET">${sys:LOG_CHARSET:-UTF-8}</Property>
+  </Properties>
+
+  <Appenders>
+    <Console name="CONSOLE" target="SYSTEM_OUT">
+      <PatternLayout charset="${LOG_CHARSET}" pattern="%d{HH:mm:ss} %-5level [%t] %c{1.} - %msg%n"/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+    <Logger name="server" level="INFO" additivity="false">
+      <AppenderRef ref="CONSOLE"/>
+    </Logger>
+    <Root level="WARN">
+      <AppenderRef ref="CONSOLE"/>
+    </Root>
+  </Loggers>
+
+</Configuration>

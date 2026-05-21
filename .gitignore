@@ -5,5 +5,6 @@
 build
 
 .vscode
+old_*
 *.cfg
 *.txt
