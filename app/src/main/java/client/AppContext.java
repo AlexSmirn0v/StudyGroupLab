@@ -1,6 +1,5 @@
 package client;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,27 +14,15 @@ import client.AppLocale.Localizable;
 public class AppContext {
     private final ConnectFacade connectFacade;
     private AppLocale locale = AppLocale.findLocale(Locale.getDefault());
-    private final HashMap<String, Color> colors;
     private Timer refreshTimer;
-    private String username = "Anonymous";
-    private String password = "";
+    private String username;
+    private String password;
+    private String search = "";
     private final List<Updatable> updatables = new ArrayList<>();
     private final List<Localizable> localizables = new ArrayList<>();
 
     public AppContext(ConnectFacade connectFacade) {
         this.connectFacade = connectFacade;
-        colors = createDefaultColors();
-    }
-
-    private HashMap<String, Color> createDefaultColors() {
-        HashMap<String, Color> defaultColors = new HashMap<>();
-        defaultColors.put("bg", new Color(246, 248, 252));
-        defaultColors.put("fieldBorder", new Color(200, 208, 220));
-        defaultColors.put("scrollBorder", new Color(214, 221, 233));
-        defaultColors.put("muted", new Color(100, 108, 120));
-        defaultColors.put("error", new Color(196, 58, 58));
-        defaultColors.put("success", new Color(36, 128, 72));
-        return defaultColors;
     }
 
     public ConnectFacade getConnectFacade() {
@@ -57,16 +44,16 @@ public class AppContext {
         notifyLocale();
     }
 
-    public Color getColor(String key) {
-        return colors.get(key);
-    }
-
     public String getUsername() {
         return username;
     }
 
     public String getPassword() {
         return password;
+    }
+
+    public String getSearchQuery() {
+        return search;
     }
 
     public JPanel getRoot() {
@@ -81,6 +68,10 @@ public class AppContext {
     public void setCredentials(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public void setSearchQuery(String search) {
+        this.search = search;
     }
 
     public void registerUpdatable(Updatable updatable) {
@@ -127,9 +118,6 @@ public class AppContext {
         }
     }
 
-    /**
-     * Interface for components that need to be notified of data updates.
-     */
     public interface Updatable {
         void update();
     }

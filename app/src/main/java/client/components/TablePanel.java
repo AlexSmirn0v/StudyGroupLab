@@ -29,12 +29,6 @@ public class TablePanel extends JPanel implements AppContext.Updatable, AppLocal
 
     private final AppContext appContext;
 
-    /**
-     * Creates a TablePanel with data from AppContext.
-     * 
-     * @param appContext the application context containing ConnectFacade and
-     *                   credentials
-     */
     public TablePanel(AppContext appContext) {
         super(new BorderLayout());
         this.appContext = appContext;
@@ -75,7 +69,7 @@ public class TablePanel extends JPanel implements AppContext.Updatable, AppLocal
         for (Column column : Column.values()) {
             column.setTitle(appContext);
         }
-        // Update table header with new locale
+
         if (table != null) {
             table.getTableHeader().repaint();
             table.repaint();
@@ -90,11 +84,6 @@ public class TablePanel extends JPanel implements AppContext.Updatable, AppLocal
         tableModel.setGroups(groups);
     }
 
-    /**
-     * Fetches all study groups from the server and refreshes the table.
-     * 
-     * @throws Exception if the server request fails or response cannot be parsed
-     */
     public void refreshFromServer() throws Exception {
         if (appContext.getConnectFacade() == null) {
             throw new IllegalStateException("ConnectFacade is not available");
@@ -105,7 +94,9 @@ public class TablePanel extends JPanel implements AppContext.Updatable, AppLocal
                 appContext.getUsername(),
                 appContext.getPassword());
 
-        Collection<StudyGroup> groups = appContext.getConnectFacade().askStudyGroup(message);
+        Collection<StudyGroup> groups = appContext.getConnectFacade().askStudyGroup(message)
+        .stream().filter(group -> group.getName().toLowerCase().contains(appContext.getSearchQuery().toLowerCase()))
+        .toList();
         if (groups != null)
             refresh(groups);
     }

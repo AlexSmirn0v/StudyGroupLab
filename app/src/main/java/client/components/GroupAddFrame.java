@@ -8,7 +8,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -34,7 +33,7 @@ import model.Semester;
 import model.StudyGroup;
 
 public class GroupAddFrame extends AppFrame {
-    private final String authorName;
+    private final String authorName, key;
     private final Function<StudyGroup, String> onSubmit;
 
     private JLabel titleLabel = new JLabel();
@@ -45,8 +44,9 @@ public class GroupAddFrame extends AppFrame {
             adminNameField, adminHeightField, adminPassportField;
     private JComboBox<String> semesterCombo, adminHairCombo;
 
-    public GroupAddFrame(AppContext context, Function<StudyGroup, String> onSubmit) {
+    public GroupAddFrame(AppContext context, String key, Function<StudyGroup, String> onSubmit) {
         super(context);
+        this.key = key;
         this.authorName = context.getUsername();
         this.onSubmit = onSubmit == null ? group -> null : onSubmit;
 
@@ -163,7 +163,7 @@ public class GroupAddFrame extends AppFrame {
             context.setLocale(locale);
         Locale.setDefault(locale.locale);
 
-        setTitle(context.getLocalText("add"));
+        setTitle(context.getLocalText(key));
         if (titleLabel != null)
             titleLabel.setText(context.getLocalText("form_heading"));
         if (authorLabel != null) {

@@ -33,7 +33,7 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
     private JLabel userLabel;
     private AppButtons.RoundLocaleButton localeButton;
 
-    private final GraphPanel graphCanvas = new GraphPanel();
+    private GraphPanel graphCanvas;
     private TablePanel tablePanel;
 
     private final AppContext context;
@@ -74,8 +74,12 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
         group.add(graphTab);
         tableTab.setSelected(true);
 
-        tableTab.addActionListener(e -> cardLayout.show(contentCards, "TABLE"));
-        graphTab.addActionListener(e -> cardLayout.show(contentCards, "GRAPH"));
+        tableTab.addActionListener(e -> {
+            cardLayout.show(contentCards, "TABLE");
+        });
+        graphTab.addActionListener(e -> {
+            cardLayout.show(contentCards, "GRAPH");
+        });
 
         left.add(tableTab);
         left.add(graphTab);
@@ -85,6 +89,10 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
 
         searchField = new HintTextField(22);
         searchField.setPreferredSize(new Dimension(230, 32));
+        searchField.addActionListener(e -> {
+            context.setSearchQuery(searchField.getText());
+            context.notifyUpdate();
+        });
         searchField.setBorder(new CompoundBorder(
                 new LineBorder(new Color(200, 208, 220), 1, true),
                 new EmptyBorder(6, 10, 6, 10)));
@@ -144,6 +152,8 @@ final public class MainWindow extends JFrame implements AppLocale.Localizable {
     }
 
     private JComponent buildGraphTab() {
+        this.graphCanvas = new GraphPanel(context);
+
         JPanel root = new JPanel(new BorderLayout(10, 0));
         root.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
         root.setBackground(new Color(246, 248, 252));

@@ -16,7 +16,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -88,7 +87,7 @@ public class LoginFrame extends AppFrame {
         gbc.insets = new Insets(0, 0, 10, 0);
 
         int row = 0;
-        row = addSectionTitle(form, gbc, row, "login_hello");
+        row = addSectionTitle(form, gbc, row, "login_title");
         usernameField = addFieldRow(form, gbc, row++, "login_username", true);
         passwordField = addPasswordRow(form, gbc, row++, "login_password", true);
 
@@ -144,10 +143,11 @@ public class LoginFrame extends AppFrame {
         if (!locale.equals(context.getLocale()))
             context.setLocale(locale);
         Locale.setDefault(locale.locale);
+        localeButton.setLocaleOption(locale);
 
         setTitle(context.getLocalText("login_title"));
         if (titleLabel != null)
-            titleLabel.setText(context.getLocalText("form_heading"));
+            titleLabel.setText(context.getLocalText("login_hello"));
 
         for (SectionTitle section : sectionTitles) {
             section.label.setText(context.getLocalText(section.key));
